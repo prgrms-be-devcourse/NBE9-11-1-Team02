@@ -1,4 +1,4 @@
-package com.back.backend.domain.user.entity;
+package com.team02.cafe.domain.delivery;
 
 import jakarta.persistence.*;
 import lombok.Getter;
