@@ -50,4 +50,5 @@ public class Product extends BaseTimeEntity {
     public void increaseQuantity(Long quantity) {
         this.quantity += quantity;
     }
+
 }

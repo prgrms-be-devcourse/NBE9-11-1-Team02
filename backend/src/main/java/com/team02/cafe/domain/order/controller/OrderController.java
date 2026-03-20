@@ -3,10 +3,7 @@ package com.team02.cafe.domain.order.controller;
 import com.team02.cafe.domain.order.dto.OrderRequest;
 import com.team02.cafe.domain.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -23,4 +20,8 @@ public class OrderController {
         System.out.println("dd");
     }
 
+    @PatchMapping("/{orderId}/cancel")
+    public void cancelOrder(@PathVariable Long orderId) {
+        orderService.cancelOrder(orderId);
+    }
 }
