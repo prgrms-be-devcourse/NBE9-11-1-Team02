@@ -1,37 +1,23 @@
-HELP.md
-.gradle
-build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
+# ===== OS =====
+.DS_Store
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
-
-### IntelliJ IDEA ###
-.idea
-*.iws
+# ===== IntelliJ =====
+.idea/
 *.iml
-*.ipr
 out/
-!**/src/main/**/out/
-!**/src/test/**/out/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+# ===== Backend (Spring Boot) =====
+backend/.gradle/
+backend/build/
+backend/out/
 
-### VS Code ###
-.vscode/
+# gradle wrapper는 유지
+!backend/gradle/wrapper/gradle-wrapper.jar
+
+# ===== Frontend =====
+frontend/node_modules/
+frontend/.next/
+frontend/dist/
+
+# ===== ETC =====
+HELP.md
