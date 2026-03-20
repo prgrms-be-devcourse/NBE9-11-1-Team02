@@ -10,15 +10,17 @@ import java.time.LocalDateTime;
 public class OrderResponseDto {
     private Long orderId;
     private String email;
+    private String username; // 추가된 엔티티 반영
     private String address;
-    private String phoneNumber; // 엔티티에 맞춰 추가
+    private String phoneNumber;
     private OrderStatus orderStatus;
-    private Long totalPrice;
-    private LocalDateTime createdAt; // BaseTimeEntity에 있는 필드라고 가정
+    private long totalPrice;
+    private LocalDateTime createdAt;
 
     public OrderResponseDto(Order order) {
         this.orderId = order.getId();
         this.email = order.getEmail();
+        this.username = order.getUsername();
         this.address = order.getAddress();
         this.phoneNumber = order.getPhoneNumber();
         this.orderStatus = order.getOrderStatus();
