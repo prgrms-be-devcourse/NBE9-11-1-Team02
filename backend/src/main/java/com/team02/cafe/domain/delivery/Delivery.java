@@ -1,41 +1,19 @@
-import com.back.backend.global.jpa.entity.BaseTimeEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Index;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+package com.back.backend.domain.user.entity;
+
+import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
-@Entity
-@Getter
-@NoArgsConstructor
+@Entity 
+@Getter 
+@Setter
 public class Delivery {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id; // 배송 번호
 
-    @Id 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "delivery_id")
-    private Long id;
-
-    private String address; // 배송지 주소
+    private String address; // 배송 주소
 
     @Enumerated(EnumType.STRING)
-    private DeliveryStatus status;
-
-    // 객체 생성
-    public static Delivery createDelivery(String address) {
-        Delivery delivery = new Delivery();
-        delivery.address = address;
-        delivery.status = DeliveryStatus.READY;
-        return delivery;
-    }
-
-    // 상태 전송
-    public void changeStatus(DeliveryStatus status) {
-        this.status = status;
-    }
+    private DeliveryStatus status = DeliveryStatus.READY; // 초기 상태 READY
 }
