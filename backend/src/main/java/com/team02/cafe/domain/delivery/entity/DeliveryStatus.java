@@ -1,4 +1,4 @@
-package com.team02.cafe.domain.delivery;
+package com.team02.cafe.domain.delivery.entity;
 
 public enum DeliveryStatus {
     READY,     // 배송 준비

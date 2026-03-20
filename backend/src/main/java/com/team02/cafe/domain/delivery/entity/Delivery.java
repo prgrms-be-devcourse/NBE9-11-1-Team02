@@ -1,4 +1,4 @@
-package com.team02.cafe.domain.delivery;
+package com.team02.cafe.domain.delivery.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
