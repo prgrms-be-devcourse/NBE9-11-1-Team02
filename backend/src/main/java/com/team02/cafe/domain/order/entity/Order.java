@@ -1,6 +1,7 @@
 package com.team02.cafe.domain.order.entity;
 
 import com.team02.cafe.domain.orderproduct.entity.OrderProduct;
+import com.team02.cafe.domain.product.entity.Product;
 import com.team02.cafe.global.common.BaseTimeEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -39,7 +40,7 @@ public class Order extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
-    private Long totalPrice;
+    private long totalPrice;
 
     @OneToMany(mappedBy = "order",
                 cascade = CascadeType.ALL,
@@ -54,10 +55,16 @@ public class Order extends BaseTimeEntity {
         this.orderStatus = orderStatus;
     }
 
-    public void addOrderProducts(OrderProduct orderProduct) {
-        // TODO: OrderProduct 생성 후 리스트에 추가 & 자기 자신 order 연결
-//        orderProducts.add(orderProduct);
+    // 주문 상품 추가 + 총 금액 추가
+    public void addOrderProduct(Product product, long quantity) {
+        OrderProduct orderProduct = new OrderProduct(
+                this, product, product.getPrice(), quantity);
+        orderProducts.add(orderProduct);
+        calculateTotalPrice(product.getPrice(), quantity);
     }
 
-    // TODO: 총금액 계산 함수 추가
+    // 총 금액 누적 계산
+    public void calculateTotalPrice(long price, long quantity) {
+        this.totalPrice += price * quantity;
+    }
 }
