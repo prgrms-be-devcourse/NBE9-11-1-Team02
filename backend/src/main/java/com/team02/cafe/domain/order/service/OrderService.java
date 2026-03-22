@@ -2,6 +2,7 @@ package com.team02.cafe.domain.order.service;
 
 import com.team02.cafe.domain.order.dto.OrderDetailResponseDto;
 import com.team02.cafe.domain.order.dto.OrderRequest;
+import com.team02.cafe.domain.order.dto.OrderResponse;
 import com.team02.cafe.domain.order.dto.OrderResponseDto;
 import com.team02.cafe.domain.order.entity.Order;
 import com.team02.cafe.domain.order.entity.OrderStatus;
@@ -30,7 +31,7 @@ public class OrderService {
     private final OrderProductRepository orderProductRepository;
 
     @Transactional
-    public void placeOrder(OrderRequest request) {
+    public OrderResponse placeOrder(OrderRequest request) {
         // 주문은 매번 새로 생성 (배송날짜 미리 계산)
         Order order = new Order(
                 request.email(),
@@ -52,6 +53,8 @@ public class OrderService {
             order.addOrderProduct(product, quantity);
         }
         orderRepository.save(order);
+
+        return new OrderResponse(order);
     }
 
     private LocalDate getDeliveryDate() {

@@ -2,6 +2,7 @@ package com.team02.cafe.domain.order.controller;
 
 import com.team02.cafe.domain.order.dto.OrderDetailResponseDto;
 import com.team02.cafe.domain.order.dto.OrderRequest;
+import com.team02.cafe.domain.order.dto.OrderResponse;
 import com.team02.cafe.domain.order.dto.OrderResponseDto;
 import com.team02.cafe.domain.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +19,10 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public void placeOrder(@RequestBody OrderRequest request) {
+    public ResponseEntity<OrderResponse> placeOrder(@RequestBody OrderRequest request) {
         // order 저장 -> orderProduct 같이 저장
-        orderService.placeOrder(request);
+        OrderResponse response = orderService.placeOrder(request);
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{orderId}/cancel")
