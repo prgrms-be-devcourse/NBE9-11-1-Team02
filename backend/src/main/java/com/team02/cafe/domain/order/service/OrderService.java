@@ -2,6 +2,7 @@ package com.team02.cafe.domain.order.service;
 
 import com.team02.cafe.domain.order.dto.OrderDetailResponseDto;
 import com.team02.cafe.domain.order.dto.OrderRequest;
+import com.team02.cafe.domain.order.dto.OrderResponse;
 import com.team02.cafe.domain.order.dto.OrderResponseDto;
 import com.team02.cafe.domain.order.entity.Order;
 import com.team02.cafe.domain.order.entity.OrderStatus;
@@ -15,10 +16,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,53 +31,38 @@ public class OrderService {
     private final OrderProductRepository orderProductRepository;
 
     @Transactional
-    public void placeOrder(OrderRequest request) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime start;
-        LocalDateTime end;
-
-        // 오후 2시 기준 기간 계산
-        if (now.toLocalTime().isBefore(LocalTime.of(14, 0))) {
-            start = LocalDateTime.of(now.toLocalDate().minusDays(1), LocalTime.of(14, 0));
-            end = LocalDateTime.of(now.toLocalDate(), LocalTime.of(14, 0));
-        } else {
-            start = LocalDateTime.of(now.toLocalDate(), LocalTime.of(14, 0));
-            end = LocalDateTime.of(now.toLocalDate().plusDays(1), LocalTime.of(14, 0));
-        }
-
-        // 기존 주문 조회 (취소된 주문은 제외)
-        Optional<Order> existingOrder =
-                orderRepository.findByEmailAndCreatedAtBetweenAndOrderStatusNot(
-                        request.email(),
-                        start,
-                        end,
-                        OrderStatus.CANCELLED
-                );
-
-        // 기존 주문이 있으면 재사용, 없으면 새 주문 생성
-        Order order = existingOrder.orElseGet(() -> new Order(
+    public OrderResponse placeOrder(OrderRequest request) {
+        // 주문은 매번 새로 생성 (배송날짜 미리 계산)
+        Order order = new Order(
                 request.email(),
                 request.username(),
                 request.address(),
                 request.phoneNumber(),
-                OrderStatus.READY
-        ));
+                OrderStatus.READY,
+                getDeliveryDate()
+        );
 
         for (OrderProductRequest opReq : request.orderProductRequestList()) {
             Product product = productRepository.findById(opReq.productId())
                     .orElseThrow(() -> new RuntimeException("존재하지 않는 상품입니다."));
 
-            long quantity = opReq.quantity();
+            long quantity = opReq.orderQuantity();
 
             // 재고 차감 추가
             product.decreaseQuantity(quantity);
-
             order.addOrderProduct(product, quantity);
         }
+        orderRepository.save(order);
 
-        // 새 주문일 때만 save
-        if (existingOrder.isEmpty()) {
-            orderRepository.save(order);
+        return new OrderResponse(order);
+    }
+
+    private LocalDate getDeliveryDate() {
+        LocalDateTime now = LocalDateTime.now();
+        if(now.toLocalTime().isBefore(LocalTime.of(14, 0))) {
+            return LocalDate.now();
+        } else {
+            return LocalDate.now().plusDays(1);
         }
     }
 
@@ -97,7 +83,7 @@ public class OrderService {
 
         for (OrderProduct orderProduct : orderProducts) {
             Product product = orderProduct.getProduct();
-            product.increaseQuantity(orderProduct.getQuantity());
+            product.increaseQuantity(orderProduct.getOrderQuantity());
         }
 
         order.changeStatus(OrderStatus.CANCELLED);

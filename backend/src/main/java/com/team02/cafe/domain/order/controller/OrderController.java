@@ -2,6 +2,7 @@ package com.team02.cafe.domain.order.controller;
 
 import com.team02.cafe.domain.order.dto.OrderDetailResponseDto;
 import com.team02.cafe.domain.order.dto.OrderRequest;
+import com.team02.cafe.domain.order.dto.OrderResponse;
 import com.team02.cafe.domain.order.dto.OrderResponseDto;
 import com.team02.cafe.domain.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -18,17 +19,17 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public void placeOrder(@RequestBody OrderRequest request) {
-        // v2 order 저장 -> cascade로 이거 저장할때 orderProduct 같이 저장
-        orderService.placeOrder(request);
-
-        System.out.println("dd");
+    public ResponseEntity<OrderResponse> placeOrder(@RequestBody OrderRequest request) {
+        // order 저장 -> orderProduct 같이 저장
+        OrderResponse response = orderService.placeOrder(request);
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{orderId}/cancel")
     public void cancelOrder(@PathVariable Long orderId) {
         orderService.cancelOrder(orderId);
     }
+
     // [추가] 주문 목록 조회 API
     @GetMapping
     public ResponseEntity<List<OrderResponseDto>> getOrders() {
