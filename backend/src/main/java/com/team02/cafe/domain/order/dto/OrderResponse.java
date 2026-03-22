@@ -3,6 +3,7 @@ package com.team02.cafe.domain.order.dto;
 import com.team02.cafe.domain.order.entity.OrderStatus;
 import com.team02.cafe.domain.orderproduct.dto.OrderProductResponse;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record OrderResponse(
@@ -13,5 +14,6 @@ public record OrderResponse(
         String phoneNumber,
         OrderStatus orderStatus,
         long totalPrice,
+        LocalDateTime createdAt,
         List<OrderProductResponse> productResponseList
 ) {}

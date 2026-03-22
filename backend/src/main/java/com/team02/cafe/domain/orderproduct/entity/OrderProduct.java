@@ -32,14 +32,14 @@ public class OrderProduct {
     @JoinColumn(name = "product_id")
     private Product product;
 
-    private Long price;
+    private Long orderPrice;
 
-    private Long quantity;
+    private Long orderQuantity;
 
-    public OrderProduct(Order order, Product product, Long price, Long quantity) {
+    public OrderProduct(Order order, Product product, Long orderPrice, Long orderQuantity) {
         this.order = order;
         this.product = product;
-        this.price = price;
-        this.quantity = quantity;
+        this.orderPrice = orderPrice;
+        this.orderQuantity = orderQuantity;
     }
 }

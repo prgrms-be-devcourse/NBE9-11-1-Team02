@@ -19,16 +19,15 @@ public class OrderController {
 
     @PostMapping
     public void placeOrder(@RequestBody OrderRequest request) {
-        // v2 order 저장 -> cascade로 이거 저장할때 orderProduct 같이 저장
+        // order 저장 -> orderProduct 같이 저장
         orderService.placeOrder(request);
-
-        System.out.println("dd");
     }
 
     @PatchMapping("/{orderId}/cancel")
     public void cancelOrder(@PathVariable Long orderId) {
         orderService.cancelOrder(orderId);
     }
+
     // [추가] 주문 목록 조회 API
     @GetMapping
     public ResponseEntity<List<OrderResponseDto>> getOrders() {
