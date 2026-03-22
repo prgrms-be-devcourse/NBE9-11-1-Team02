@@ -44,10 +44,16 @@ public class OrderService {
             end = LocalDateTime.of(now.toLocalDate().plusDays(1), LocalTime.of(14, 0));
         }
 
-        // 기존 주문이 있는지 조회
-        Optional<Order> existingOrder = orderRepository.findByEmailAndCreatedAtBetween(request.email(), start, end);
+        // 기존 주문 조회 (취소된 주문은 제외)
+        Optional<Order> existingOrder =
+                orderRepository.findByEmailAndCreatedAtBetweenAndOrderStatusNot(
+                        request.email(),
+                        start,
+                        end,
+                        OrderStatus.CANCELLED
+                );
 
-        // 기존 주문이 있으면 가져오고, 없으면 새로 생성
+        // 기존 주문이 있으면 재사용, 없으면 새 주문 생성
         Order order = existingOrder.orElseGet(() -> new Order(
                 request.email(),
                 request.username(),
@@ -56,22 +62,24 @@ public class OrderService {
                 OrderStatus.READY
         ));
 
-
         for (OrderProductRequest opReq : request.orderProductRequestList()) {
             Product product = productRepository.findById(opReq.productId())
                     .orElseThrow(() -> new RuntimeException("존재하지 않는 상품입니다."));
+
             long quantity = opReq.quantity();
+
+            // 재고 차감 추가
+            product.decreaseQuantity(quantity);
 
             order.addOrderProduct(product, quantity);
         }
 
-        // 새로 만든 주문일 때만 명시적 저장 (기존 주문은 JPA 변경감지로 업데이트됨)
+        // 새 주문일 때만 save
         if (existingOrder.isEmpty()) {
             orderRepository.save(order);
         }
     }
 
-    // [기존 유지] 주문 취소 로직
     @Transactional
     public void cancelOrder(Long orderId) {
         Order order = orderRepository.findById(orderId)
@@ -95,7 +103,6 @@ public class OrderService {
         order.changeStatus(OrderStatus.CANCELLED);
     }
 
-    // [추가] 2. 주문 목록 조회
     @Transactional(readOnly = true)
     public List<OrderResponseDto> getAllOrders() {
         return orderRepository.findAll().stream()
@@ -103,7 +110,6 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
-    // [추가] 3. 주문 상세 조회
     @Transactional(readOnly = true)
     public OrderDetailResponseDto getOrderDetails(Long orderId) {
         Order order = orderRepository.findById(orderId)
