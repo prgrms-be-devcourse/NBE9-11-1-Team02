@@ -5,8 +5,8 @@ import com.team02.cafe.domain.order.dto.OrderRequest;
 import com.team02.cafe.domain.order.dto.OrderResponse;
 import com.team02.cafe.domain.order.dto.OrderResponseDto;
 import com.team02.cafe.domain.order.service.OrderService;
+import com.team02.cafe.global.common.RsData;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,26 +19,24 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<OrderResponse> placeOrder(@RequestBody OrderRequest request) {
-        // order 저장 -> orderProduct 같이 저장
+    public RsData<OrderResponse> placeOrder(@RequestBody OrderRequest request) {
         OrderResponse response = orderService.placeOrder(request);
-        return ResponseEntity.ok(response);
+        return RsData.of("200", "주문이 완료되었습니다.", response);
     }
 
     @PatchMapping("/{orderId}/cancel")
-    public void cancelOrder(@PathVariable Long orderId) {
+    public RsData<Void> cancelOrder(@PathVariable Long orderId) {
         orderService.cancelOrder(orderId);
+        return RsData.of("200", "주문이 취소되었습니다.");
     }
 
-    // [추가] 주문 목록 조회 API
     @GetMapping
-    public ResponseEntity<List<OrderResponseDto>> getOrders() {
-        return ResponseEntity.ok(orderService.getAllOrders());
+    public RsData<List<OrderResponseDto>> getOrders() {
+        return RsData.of("200", "주문 목록 조회 성공", orderService.getAllOrders());
     }
 
-    // [추가] 주문 상세 조회 API
     @GetMapping("/{orderId}")
-    public ResponseEntity<OrderDetailResponseDto> getOrderDetails(@PathVariable Long orderId) {
-        return ResponseEntity.ok(orderService.getOrderDetails(orderId));
+    public RsData<OrderDetailResponseDto> getOrderDetails(@PathVariable Long orderId) {
+        return RsData.of("200", "주문 상세 조회 성공", orderService.getOrderDetails(orderId));
     }
 }
