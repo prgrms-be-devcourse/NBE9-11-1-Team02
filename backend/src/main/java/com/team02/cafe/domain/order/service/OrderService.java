@@ -32,7 +32,6 @@ public class OrderService {
 
     @Transactional
     public OrderResponse placeOrder(OrderRequest request) {
-        // 주문은 매번 새로 생성 (배송날짜 미리 계산)
         Order order = new Order(
                 request.email(),
                 request.username(),
@@ -48,10 +47,10 @@ public class OrderService {
 
             long quantity = opReq.orderQuantity();
 
-            // 재고 차감 추가
             product.decreaseQuantity(quantity);
             order.addOrderProduct(product, quantity);
         }
+
         orderRepository.save(order);
 
         return new OrderResponse(order);
@@ -59,7 +58,7 @@ public class OrderService {
 
     private LocalDate getDeliveryDate() {
         LocalDateTime now = LocalDateTime.now();
-        if(now.toLocalTime().isBefore(LocalTime.of(14, 0))) {
+        if (now.toLocalTime().isBefore(LocalTime.of(14, 0))) {
             return LocalDate.now();
         } else {
             return LocalDate.now().plusDays(1);
