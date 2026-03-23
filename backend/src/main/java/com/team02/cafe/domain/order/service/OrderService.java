@@ -36,7 +36,6 @@ public class OrderService {
 
     @Transactional
     public OrderResponse placeOrder(OrderRequest request) {
-        // 주문은 매번 새로 생성 (배송날짜 미리 계산)
         Order order = new Order(
                 request.email(),
                 request.username(),
@@ -52,10 +51,10 @@ public class OrderService {
 
             long quantity = opReq.orderQuantity();
 
-            // 재고 차감 추가
             product.decreaseQuantity(quantity);
             order.addOrderProduct(product, quantity);
         }
+
         orderRepository.save(order);
 
         return new OrderResponse(order);
@@ -106,7 +105,6 @@ public class OrderService {
                 .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
         return new OrderDetailResponseDto(order);
     }
-
     @Transactional(readOnly = true)
     public List<MergedOrderDto> getMergedOrdersForDelivery() {
         LocalDateTime now = LocalDateTime.now();
