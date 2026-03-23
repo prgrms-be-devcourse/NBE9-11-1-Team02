@@ -45,4 +45,16 @@ public class ProductService {
         Product product = getProduct(id);
         productRepository.delete(product);
     }
+
+    // 재고 차감
+    public void decreaseQuantity(Long productId, Long quantity) {
+        Product product = getProduct(productId);
+        product.decreaseQuantity(quantity);
+    }
+
+    // 재고 복구
+    public void increaseQuantity(Long productId, Long quantity) {
+        Product product = getProduct(productId);
+        product.increaseQuantity(quantity);
+    }
 }
