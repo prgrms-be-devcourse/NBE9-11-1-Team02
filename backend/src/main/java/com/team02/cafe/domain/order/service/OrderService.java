@@ -100,6 +100,13 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
+    public List<OrderResponseDto> getOrdersByEmail(String email) {
+        return orderRepository.findByEmailOrderByCreatedAtDesc(email).stream()
+                .map(OrderResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public OrderDetailResponseDto getOrderDetails(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));

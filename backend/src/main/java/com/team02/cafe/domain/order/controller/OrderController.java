@@ -34,8 +34,8 @@ public class OrderController {
 
     // 주문 목록 조회 API
     @GetMapping
-    public RsData<List<OrderResponseDto>> getOrders() {
-        return RsData.of("200", "주문 목록 조회 성공", orderService.getAllOrders());
+    public RsData<List<OrderResponseDto>> getOrders(@RequestParam String email) {
+        return RsData.of("200", "내 주문 내역 조회 성공", orderService.getOrdersByEmail(email));
     }
     // 주문 상세 조회 API
     @GetMapping("/{orderId}")
