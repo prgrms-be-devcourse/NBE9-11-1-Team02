@@ -12,7 +12,9 @@ public class OrderProductDto {
     public OrderProductDto(OrderProduct orderProduct) {
         // Product 엔티티에서 이름을 가져옴
         this.productName = orderProduct.getProduct().getName();
-        this.price = orderProduct.getPrice();
-        this.quantity = orderProduct.getQuantity();
+        this.price = orderProduct.getOrderPrice();
+        this.quantity = orderProduct.getOrderQuantity();
+        this.price = orderProduct.getOrderPrice();
+        this.quantity = orderProduct.getOrderQuantity();
     }
 }
