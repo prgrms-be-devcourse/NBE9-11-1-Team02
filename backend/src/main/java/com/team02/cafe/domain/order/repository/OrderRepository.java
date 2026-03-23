@@ -27,5 +27,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             OrderStatus orderStatus
     );
 
+
     List<Order> findByEmailOrderByCreatedAtDesc(String email);
+
 }
