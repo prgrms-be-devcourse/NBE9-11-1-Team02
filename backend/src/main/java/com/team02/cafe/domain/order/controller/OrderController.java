@@ -44,7 +44,7 @@ public class OrderController {
     }
     // 관리자용 배송 처리 합산 주문 조회 API
     @GetMapping("/merged")
-    public ResponseEntity<List<MergedOrderDto>> getMergedOrders() {
-        return ResponseEntity.ok(orderService.getMergedOrdersForDelivery());
+    public RsData<List<MergedOrderDto>> getMergedOrders() {
+        return RsData.of("200", "합배송 주문 조회 성공", orderService.getMergedOrdersForDelivery());
     }
 }
