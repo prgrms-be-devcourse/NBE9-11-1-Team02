@@ -1,5 +1,6 @@
 package com.team02.cafe.domain.order.entity;
 
+import com.team02.cafe.domain.delivery.entity.Delivery;
 import com.team02.cafe.domain.orderproduct.entity.OrderProduct;
 import com.team02.cafe.domain.product.entity.Product;
 import com.team02.cafe.global.common.BaseTimeEntity;
@@ -37,6 +38,9 @@ public class Order extends BaseTimeEntity {
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     List<OrderProduct> orderProducts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Delivery> deliveries = new ArrayList<>();
 
     public Order(String email, String username, String address,
                  String phoneNumber, OrderStatus orderStatus, LocalDate deliveryDate) {
