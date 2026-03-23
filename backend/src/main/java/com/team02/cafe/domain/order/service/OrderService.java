@@ -112,6 +112,7 @@ public class OrderService {
                 .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
         return new OrderDetailResponseDto(order);
     }
+
     @Transactional(readOnly = true)
     public List<MergedOrderDto> getMergedOrdersForDelivery() {
         LocalDateTime now = LocalDateTime.now();
@@ -169,5 +170,17 @@ public class OrderService {
             return new MergedOrderDto(email, address, phoneNumber, totalMergedPrice, new ArrayList<>(productMap.values()));
         }).collect(Collectors.toList());
 
+    }
+
+    @Transactional
+    public void updateOrderStatus(Long orderId, OrderStatus orderStatus) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("주문이 존재하지 않습니다."));
+
+        if (order.getOrderStatus() == OrderStatus.CANCELLED) {
+            throw new IllegalArgumentException("취소된 주문은 상태를 변경할 수 없습니다.");
+        }
+
+        order.changeStatus(orderStatus);
     }
 }
