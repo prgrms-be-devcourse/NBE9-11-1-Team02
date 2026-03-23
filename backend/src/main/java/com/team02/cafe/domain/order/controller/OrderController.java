@@ -1,5 +1,6 @@
 package com.team02.cafe.domain.order.controller;
 
+import com.team02.cafe.domain.order.dto.MergedOrderDto;
 import com.team02.cafe.domain.order.dto.OrderDetailResponseDto;
 import com.team02.cafe.domain.order.dto.OrderRequest;
 import com.team02.cafe.domain.order.dto.OrderResponse;
@@ -30,15 +31,21 @@ public class OrderController {
         orderService.cancelOrder(orderId);
     }
 
-    // [추가] 주문 목록 조회 API
+    // 주문 목록 조회 API
     @GetMapping
     public ResponseEntity<List<OrderResponseDto>> getOrders() {
         return ResponseEntity.ok(orderService.getAllOrders());
     }
 
-    // [추가] 주문 상세 조회 API
+    // 주문 상세 조회 API
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDetailResponseDto> getOrderDetails(@PathVariable Long orderId) {
         return ResponseEntity.ok(orderService.getOrderDetails(orderId));
+    }
+
+    // 관리자용 배송 처리 합산 주문 조회 API
+    @GetMapping("/merged")
+    public ResponseEntity<List<MergedOrderDto>> getMergedOrders() {
+        return ResponseEntity.ok(orderService.getMergedOrdersForDelivery());
     }
 }
