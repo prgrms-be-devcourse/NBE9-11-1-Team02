@@ -85,7 +85,7 @@ export default function AdminProductsPage() {
                 <input placeholder="이미지 URL 입력" value={form.imageUrl} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} />
 
                 <button onClick={handleSubmit}>{editId !== null ? "수정 완료" : "추가"}</button>
-                {editId !== null && <button onClick={() => setEditId(null)}>취소</button>}
+                {editId !== null && <> / <button onClick={() => setEditId(null)}>수정 취소</button></>}
             </div>
 
             {/* 상품 목록 */}
