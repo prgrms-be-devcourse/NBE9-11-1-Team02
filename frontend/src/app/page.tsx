@@ -105,7 +105,7 @@ function ProductList({
             <div
               style={{
                 fontFamily: "var(--font-playfair), serif",
-                fontSize: "18px",
+                fontSize: "25px",
                 fontWeight: "700",
                 color: "var(--ink)",
               }}
@@ -116,11 +116,11 @@ function ProductList({
             <div
               style={{
                 fontFamily: "var(--font-dm-mono), monospace",
-                fontSize: "13px",
+                fontSize: "17px",
                 color: "var(--amber)",
               }}
             >
-              {p.price}원
+              {p.price.toLocaleString()}원
             </div>
 
             <div className="text-red-500 font-semibold" style={{ fontSize: "12px" }}>
@@ -129,8 +129,7 @@ function ProductList({
           </div>
 
           {p.quantity > 0 && (
-            <div className="flex flex-col items-center gap-1">
-              <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center">
                 <div className="flex items-center gap-2">
                   <button
                     style={{
@@ -173,29 +172,38 @@ function ProductList({
                   </button>
                 </div>
 
-                <div className="h-4 mt-1 text-center" style={{ fontSize: "10px", color: "var(--amber)" }}>
+                <div
+                  style={{
+                    height: "14px",
+                    width: "210px",
+                    fontSize: "11px",
+                    color: "var(--amber)",
+                    textAlign: "center"
+                  }}
+                >
                   {(quantities[p.id] || 1) >= 10 && "최대 10개까지만 담을 수 있습니다."}
                 </div>
+              
+              <div>
+                <button
+                  style={{
+                    marginTop: "4px",
+                    padding: "6px 20px",
+                    height: "34px",
+                    background: p.quantity < 1 ? "var(--sand)" : "var(--ink)",
+                    color: p.quantity < 1 ? "var(--muted)" : "var(--cream)",
+                    border: "none",
+                    fontFamily: "var(--font-dm-mono), monospace",
+                    fontSize: "11px",
+                    letterSpacing: "0.08em",
+                    cursor: p.quantity < 1 ? "not-allowed" : "pointer",
+                  }}
+                  onClick={() => handleAddToCart(p)}
+                  disabled={p.quantity < 1}
+                >
+                  추가
+                </button>
               </div>
-
-              <button
-                style={{
-                  marginTop: "4px",
-                  padding: "6px 20px",
-                  height: "34px",
-                  background: p.quantity < 1 ? "var(--sand)" : "var(--ink)",
-                  color: p.quantity < 1 ? "var(--muted)" : "var(--cream)",
-                  border: "none",
-                  fontFamily: "var(--font-dm-mono), monospace",
-                  fontSize: "11px",
-                  letterSpacing: "0.08em",
-                  cursor: p.quantity < 1 ? "not-allowed" : "pointer",
-                }}
-                onClick={() => handleAddToCart(p)}
-                disabled={p.quantity < 1}
-              >
-                추가
-              </button>
             </div>
           )}
         </div>
@@ -211,6 +219,12 @@ function Cart({
   cartItems: CartItem[];
   removeFromCart: (id: number) => void;
 }) {
+
+  const totalPrice = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
   return (
     <div
       className="w-80 p-4 rounded-lg sticky top-4 h-fit"
@@ -245,7 +259,7 @@ function Cart({
                 {item.quantity}개
               </span>
               <span className="w-20 text-right" style={{ fontSize: "13px" }}>
-                {item.price * item.quantity}원
+                {(item.price * item.quantity).toLocaleString()}원
               </span>
               <button
                 className="ml-2 px-2 py-1"
@@ -263,6 +277,24 @@ function Cart({
             </li>
           ))}
         </ul>
+      )}
+
+      {cartItems.length > 0 && (
+        <div
+          style={{
+            marginTop: "16px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            fontFamily: "var(--font-dm-mono), monospace",
+            fontSize: "13px",
+            color: "var(--ink)",
+            letterSpacing: "0.08em",
+          }}
+        >
+          <span>TOTAL</span>
+          <span>{totalPrice.toLocaleString()}원</span>
+        </div>
       )}
 
       <div className="mt-4">
