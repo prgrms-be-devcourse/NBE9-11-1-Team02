@@ -28,8 +28,8 @@ public class ProductService {
     }
 
     // 등록
-    public Product createProduct(String name, Long price, Long quantity, String imageUrl) {
-        Product product = new Product(name, price, quantity, imageUrl);
+    public Product createProduct(String name, Long price, Long quantity) {
+        Product product = new Product(name, price, quantity, "default.png");
         return productRepository.save(product);
     }
 
