@@ -1,9 +1,7 @@
 package com.team02.cafe.domain.order.service;
+
 import com.team02.cafe.domain.order.dto.MergedOrderDto;
 import com.team02.cafe.domain.order.dto.MergedProductDto;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
 import com.team02.cafe.domain.order.dto.OrderDetailResponseDto;
 import com.team02.cafe.domain.order.dto.OrderRequest;
 import com.team02.cafe.domain.order.dto.OrderResponse;
@@ -23,7 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,9 +46,16 @@ public class OrderService {
                 getDeliveryDate()
         );
 
-        for (OrderProductRequest opReq : request.orderProductRequestList()) {
-            Product product = productRepository.findById(opReq.productId())
-                    .orElseThrow(() -> new RuntimeException("존재하지 않는 상품입니다."));
+        List<Long> productIds = new ArrayList<>();
+        for(OrderProductRequest opReq : request.orderProductRequestList()) {
+            productIds.add(opReq.productId());
+        }
+        List<Product> products = productRepository.findAllById(productIds);
+        Map<Long, Product> productMap = products.stream()
+                .collect(Collectors.toMap(Product::getId, p -> p));
+
+        for(OrderProductRequest opReq : request.orderProductRequestList()) {
+            Product product = productMap.get(opReq.productId());
 
             long quantity = opReq.orderQuantity();
 

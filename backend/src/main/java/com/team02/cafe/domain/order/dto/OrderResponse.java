@@ -10,6 +10,7 @@ import java.util.List;
 
 public record OrderResponse(
         Long id,
+        String orderNumber,
         String email,
         String username,
         String address,
@@ -24,6 +25,7 @@ public record OrderResponse(
     public OrderResponse(Order order) {
         this(
                 order.getId(),
+                order.getOrderNumber(),
                 order.getEmail(),
                 order.getUsername(),
                 order.getAddress(),
