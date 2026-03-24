@@ -64,18 +64,12 @@ export default function OrderPage() {
         }))
       };
 
-<<<<<<< HEAD
 	  // API 호출 - 응답 구조에 따라 데이터를 안전하게 추출함
       const response = await createOrder(orderData);
       
       // 언디파인드 방지
       // API 라이브러리가 res.data를 반환하는지, res 전체를 반환하는지에 따라 대응
-      const confirmedOrderId = (response as any).orderId || (response as any).data?.orderId;
-=======
-      // 서버 응답 타입을 OrderResponse로 명시
-      const response = await createOrder(orderData) as { data: OrderResponse };
-      const confirmedOrderId = response.data.orderNumber;
->>>>>>> e6d8254100e49f36146fda0c8a59ad5706e9fe66
+      const confirmedOrderId = (response as any).orderNumber || (response as any).data?.orderNumber;
 
       if (!confirmedOrderId) {
         throw new Error("서버 응답에서 주문 번호를 식별할 수 없습니다.");
