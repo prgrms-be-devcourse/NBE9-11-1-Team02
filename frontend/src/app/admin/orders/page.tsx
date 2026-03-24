@@ -1,13 +1,27 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
     getAllOrders,
     getMergedOrders,
     updateMergedOrderStatus,
 } from "@/lib/api/order";
 
+const ADMIN_EMAIL = "admin@cafe.com";
+
 type OrderItem = {
+<<<<<<< HEAD
+  orderId: number;
+  email: string;
+  username: string;
+  address: string;
+  phoneNumber: string;
+  orderStatus: string;
+  totalPrice: number;
+  deliveryDate?: string;
+  createdAt?: string;
+=======
     orderId: number;
     orderNumber?: string;
     email: string;
@@ -18,6 +32,7 @@ type OrderItem = {
     totalPrice: number;
     deliveryDate?: string;
     createdAt?: string;
+>>>>>>> develop
 };
 
 type MergedProduct = {
@@ -27,6 +42,39 @@ type MergedProduct = {
 };
 
 type MergedOrderItem = {
+<<<<<<< HEAD
+  orderId: number;
+  email: string;
+  username: string;
+  address: string;
+  phoneNumber: string;
+  totalPrice: number;
+  deliveryDate?: string;
+  orderStatus: string;
+  products: MergedProduct[];
+};
+
+export default function AdminOrdersPage() {
+  const [orders, setOrders] = useState<OrderItem[]>([]);
+  const [mergedOrders, setMergedOrders] = useState<MergedOrderItem[]>([]);
+  const [viewMode, setViewMode] = useState<"all" | "merged">("all");
+  const [isAuthorized, setIsAuthorized] = useState(false);
+
+  useEffect(() => {
+    const adminEmail = localStorage.getItem("adminEmail");
+
+    if (adminEmail !== ADMIN_EMAIL) {
+      alert("관리자만 접근 가능합니다.");
+      window.location.href = "/admin/login";
+      return;
+    }
+
+    setIsAuthorized(true);
+
+    getAllOrders().then((res) => setOrders(res.data));
+    getMergedOrders().then((res) => setMergedOrders(res.data));
+  }, []);
+=======
     orderId: number;
     orderNumber?: string;
     email: string;
@@ -48,6 +96,7 @@ export default function AdminOrdersPage() {
         getAllOrders().then((res) => setOrders(res.data));
         getMergedOrders().then((res) => setMergedOrders(res.data));
     }, []);
+>>>>>>> develop
 
     const sortedOrders = useMemo(() => {
         return [...orders].sort((a, b) => a.orderId - b.orderId);
@@ -77,8 +126,15 @@ export default function AdminOrdersPage() {
         const ok = window.confirm(`합배송 상태를 ${newStatus}(으)로 변경하시겠습니까?`);
         if (!ok) return;
 
+<<<<<<< HEAD
+    try {
+      const adminEmail = localStorage.getItem("adminEmail") ?? "";
+
+      await updateMergedOrderStatus(email, username, address, newStatus, adminEmail);
+=======
         try {
             await updateMergedOrderStatus(email, username, address, newStatus);
+>>>>>>> develop
 
             setMergedOrders((prev) =>
                 prev.map((order) =>
@@ -107,6 +163,117 @@ export default function AdminOrdersPage() {
         }
     };
 
+<<<<<<< HEAD
+  const handleLogout = () => {
+    localStorage.removeItem("adminEmail");
+    window.location.href = "/admin/login";
+  };
+
+  if (!isAuthorized) return null;
+
+  return (
+    <main style={{ background: "#000", color: "#fff", padding: "30px", minHeight: "100vh" }}>
+      <div className="flex justify-between items-center mb-8">
+        <h1 style={{ fontSize: "50px", marginBottom: "0" }}>관리자 주문 관리</h1>
+
+        <div className="flex gap-3">
+          <Link href="/admin/products">
+            <button
+              style={{
+                padding: "10px 16px",
+                border: "1px solid #fff",
+                borderRadius: "8px",
+                background: "transparent",
+                color: "#fff",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }}
+            >
+              상품 관리
+            </button>
+          </Link>
+
+          <button
+            onClick={handleLogout}
+            style={{
+              padding: "10px 16px",
+              border: "1px solid #fff",
+              borderRadius: "8px",
+              background: "transparent",
+              color: "#fff",
+              fontWeight: "bold",
+              cursor: "pointer",
+            }}
+          >
+            로그아웃
+          </button>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+        <button
+          onClick={() => setViewMode("all")}
+          style={{
+            padding: "10px 16px",
+            background: viewMode === "all" ? "#fff" : "#000",
+            color: viewMode === "all" ? "#000" : "#fff",
+            border: "1px solid #fff",
+            borderRadius: "8px",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
+        >
+          전체 주문
+        </button>
+
+        <button
+          onClick={() => setViewMode("merged")}
+          style={{
+            padding: "10px 16px",
+            background: viewMode === "merged" ? "#fff" : "#000",
+            color: viewMode === "merged" ? "#000" : "#fff",
+            border: "1px solid #fff",
+            borderRadius: "8px",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
+        >
+          합배송 주문
+        </button>
+      </div>
+
+      {viewMode === "all" && (
+        <div>
+          {sortedOrders.length === 0 && <p>주문 내역이 없습니다.</p>}
+
+          {sortedOrders.map((order) => (
+            <div
+              key={order.orderId}
+              style={{
+                background: "#fff",
+                color: "#000",
+                padding: "20px",
+                marginBottom: "15px",
+                borderRadius: "12px",
+              }}
+            >
+              <p><b>ID:</b> {order.orderId}</p>
+              <p><b>이메일:</b> {order.email}</p>
+              <p><b>이름:</b> {order.username}</p>
+              <p><b>주소:</b> {order.address}</p>
+              <p><b>전화번호:</b> {order.phoneNumber}</p>
+
+              <p>
+                <b>상태:</b>{" "}
+                <span
+                  style={{
+                    ...getStatusStyle(order.orderStatus),
+                    padding: "4px 10px",
+                    borderRadius: "6px",
+                    fontWeight: "bold",
+                    border: "1px solid #ccc",
+                  }}
+=======
     return (
         <main style={{ background: "var(--cream)", color: "var(--ink)", padding: "2.5rem", minHeight: "100vh" }}>
             <div style={{ background: "var(--ink)", padding: "2.5rem 2.5rem 1.5rem", marginBottom: "2rem" }}>
@@ -118,6 +285,7 @@ export default function AdminOrdersPage() {
                         color: "var(--cream)",
                         marginBottom: "1.5rem",
                     }}
+>>>>>>> develop
                 >
                     관리자 주문 관리
                 </h1>

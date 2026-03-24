@@ -44,7 +44,7 @@ export default function RootLayout({
             Grids &amp; Circles
           </Link>
           <nav className="flex gap-6">
-            <Link href="/admin/products" style={{
+            <Link href="/admin/login" style={{
               fontFamily: "var(--font-dm-mono), monospace",
               fontSize: "13px",
               letterSpacing: "0.1em",
