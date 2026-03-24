@@ -24,3 +24,7 @@ body {
   color: var(--ink);
   font-family: 'DM Mono', monospace;
 }
+
+html {
+  scrollbar-gutter: stable;
+}
