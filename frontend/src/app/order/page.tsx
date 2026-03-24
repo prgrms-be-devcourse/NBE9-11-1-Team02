@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCartStore, CartItem } from "../../stores/cartStore";
-import { createOrder } from "../../api/order/order"; // API 연결
+import { createOrder } from "../../api/order/order";
 
 export default function OrderPage() {
   const router = useRouter();
@@ -38,7 +38,7 @@ export default function OrderPage() {
     }
 
     setIsSubmitting(true);
-    try {
+    try { 
       // API 전송
       await createOrder({
         email,

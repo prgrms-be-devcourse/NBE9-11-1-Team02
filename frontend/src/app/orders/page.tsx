@@ -95,6 +95,7 @@ export default function OrdersPage() {
           
           <p><strong>총 결제 금액:</strong> {order.totalPrice?.toLocaleString() || 0}원</p>
           <p><strong>배송지:</strong> {order.address}</p>
+          <p><strong>배송 예정일:</strong> {order.deliveryDate || "배송일 미정"}</p>
 
           <hr style={{ margin: "10px 0" }} />
 
