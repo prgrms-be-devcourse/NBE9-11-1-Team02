@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  getOrders,
+  getAllOrders,
   getMergedOrders,
   updateMergedOrderStatus,
 } from "@/lib/api/order";
@@ -43,22 +43,8 @@ export default function AdminOrdersPage() {
   const [viewMode, setViewMode] = useState<"all" | "merged">("all");
 
   useEffect(() => {
-    getOrders("test@test.com").then((res) => setOrders(res.data));
-  
-    getMergedOrders().then((res) => {
-        console.log("합배송 원본 데이터:", res.data);
-        console.table(
-          res.data.map((item: any) => ({
-            orderId: item.orderId,
-            email: item.email,
-            username: item.username,
-            address: item.address,
-            deliveryDate: item.deliveryDate,
-            orderStatus: item.orderStatus,
-          }))
-        );
-        setMergedOrders(res.data);
-      });
+    getAllOrders().then((res) => setOrders(res.data));
+    getMergedOrders().then((res) => setMergedOrders(res.data));
   }, []);
 
   const sortedOrders = useMemo(() => {
@@ -206,11 +192,7 @@ export default function AdminOrdersPage() {
 
           {sortedMergedOrders.map((order, idx) => (
             <div
-              key={
-                order.orderId
-                ? order.orderId
-                : `${order.email}-${order.username}-${order.address}-${idx}`
-            }
+              key={order.orderId ?? `${order.email}-${order.address}-${idx}`}
               style={{
                 background: "#fff",
                 color: "#000",
@@ -219,7 +201,7 @@ export default function AdminOrdersPage() {
                 borderRadius: "12px",
               }}
             >
-              <p><b>ID:</b> {order.orderId}</p>
+              <p><b>ID:</b> {order.orderId ?? "-"}</p>
               <p><b>이메일:</b> {order.email}</p>
               <p><b>이름:</b> {order.username}</p>
               <p><b>주소:</b> {order.address}</p>

@@ -158,6 +158,14 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
+    public List<OrderResponseDto> getAllOrders() {
+        return orderRepository.findAll().stream()
+                .sorted((o1, o2) -> o1.getId().compareTo(o2.getId()))
+                .map(OrderResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<MergedOrderDto> getMergedOrdersForDelivery() {
         LocalDateTime[] range = getCurrentDeliveryRange();
         LocalDateTime start = range[0];
