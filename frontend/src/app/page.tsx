@@ -107,7 +107,7 @@ function ProductList({
           key={p.id} 
           className="flex items-center justify-between bg-cream-50 p-4 rounded-lg shadow-sm">
           <Image
-            src={p.imageUrl || "/default.png"}
+            src={p.image_url ? `/${p.image_url}` : "/default.png"}
             alt={p.name}
             width={100}
             height={100}
