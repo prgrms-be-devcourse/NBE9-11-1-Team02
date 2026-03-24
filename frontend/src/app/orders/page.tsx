@@ -57,14 +57,12 @@ export default function OrdersPage() {
     }
   };
 
-  // ✅ 1. 14시 기준 '당일/익일 배송' 계산 텍스트 변환 함수
+  // 14시 기준 '당일/익일 배송' 계산 텍스트 변환 함수
   const getDeliveryText = (order: any) => {
-    // 주문 생성 시간(createdAt)이 있다면 시간을 파싱해서 14시와 비교
     if (order.createdAt) {
       const orderHour = new Date(order.createdAt).getHours();
       return orderHour < 14 ? "당일 배송" : "익일 배송";
     }
-    // 혹시 시간이 없다면 넘어온 날짜 그대로 표시
     return order.deliveryDate ? `${order.deliveryDate} (배송 예정)` : "배송일 미정";
   };
 
@@ -113,10 +111,9 @@ export default function OrdersPage() {
 
       {/* 검색 결과가 있을 때 */}
       {orderList?.map((order) => {
-        // 아이디 변수명 방어
         const currentOrderId = order.orderId || order.id;
 
-        // ✅ 2. 백엔드 변수명이 무엇이든 다 잡아내는 만능 배열 추출기
+        // 백엔드 변수명이 무엇이든 다 잡아내는 만능 배열 추출기
         const products = order.orderProducts || order.productResponseList || order.orderProductResponseList || order.products || order.orderProductDtoList || order.orderProductList || [];
 
         return (
@@ -136,14 +133,12 @@ export default function OrdersPage() {
             
             <p><strong>총 결제 금액:</strong> {order.totalPrice?.toLocaleString() || 0}원</p>
             <p><strong>배송지:</strong> {order.address}</p>
-            {/* ✅ 배송 로직 적용 */}
             <p style={{ color: "#0066cc" }}><strong>배송 예정일:</strong> {getDeliveryText(order)}</p>
 
             <hr style={{ margin: "10px 0" }} />
 
             <h3>주문 상품</h3>
             <ul>
-              {/* ✅ 3. 속성 이름(변수명)이 다를 경우를 대비한 만능 출력기 */}
               {products?.map((product: any, idx: number) => {
                 const pName = product.productName || product.name || "상품명 확인 불가";
                 const pQty = product.orderQuantity || product.quantity || product.count || 0;
