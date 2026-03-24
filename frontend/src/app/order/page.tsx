@@ -1,104 +1,106 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-// 상대 경로를 통한 cartStore 연결.
 import { useCartStore, CartItem } from "../../stores/cartStore";
 
 export default function OrderPage() {
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
 
-  // 주문 완료 시에 '장바구니 초기화' 관련 기능
-  const { cartItems, clearCart } = useCartStore((state) => ({
-    cartItems: state.cartItems,
-    clearCart: state.clearCart,
-  }));
+  const cartItems = useCartStore((state) => state.cartItems);
+  const clearCart = useCartStore((state) => state.clearCart);
 
-  // 상태 값에도 엄격한 자료형(string)을 부여했네.
   const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<{ text: string; type: "error" | "success" } | null>(null);
 
-  // 총금액 계산
-  const totalAmount: number = cartItems.reduce(
-    (acc: number, item: CartItem) => acc + item.price * item.quantity,0);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
-  const handleProcessOrder = (): void => {
+  const totalAmount = cartItems.reduce(
+    (acc, item) => acc + item.price * item.quantity, 0
+  );
+
+  const handleProcessOrder = () => {
+    setStatus(null);
     if (cartItems.length === 0) {
-      alert("장바구니가 비어 있습니다.");
+      setStatus({ text: "장바구니가 비어 있습니다.", type: "error" });
       return;
     }
-
     if (!email.trim() || !email.includes("@")) {
-      alert("[주문 확인을 위해 이메일을 입력해 주세요]");
+      setStatus({ text: "이메일 주소를 정확히 입력해 주세요.", type: "error" });
       return;
     }
-
-    // 전송 통신 성공 시
-    console.log("주문 데이터 전송 완료:", {
-      email,
-      items: cartItems,
-      totalAmount,
-    });
-    alert("주문이 완료되었습니다. 메인 화면으로 복귀합니다.");
-
-    // 장바구니 비우기
-    // clearCart();
-    // 메인 페이지(/)로 이동
-    router.push("/"); // src/app/page.jsx로 이동
+    setStatus({ text: "주문이 완료되었습니다!", type: "success" });
+    clearCart(); 
+    setTimeout(() => {
+      router.push("/");
+    }, 2000);
   };
 
-  return (
-    <main style={{ padding: "20px" }}>
-      <h1>☕ 주문서 작성 (TSX)</h1>
+  const statusMessage = status ? (
+    <div style={{ textAlign: "center" }}>
+      {status.text}
+    </div>
+  ) : null;
 
-      {/* [주문 상품 정보 박스] */}
-      <section>
-        <h2>🛒 [주문 상품 정보]</h2>
-        <ul>
+  if (!isMounted) return null;
+
+  return (
+    <main style={{ maxWidth: "650px", margin: "0 auto" }}>
+      <h1 style={{ textAlign: "center" }}>☕ 주문서 작성</h1>
+
+      {statusMessage}
+
+      <section style={{ textAlign: "left" }}>
+        <h3>🛒 [주문 상품 정보]</h3>
+        <ul style={{ listStyle: "none", padding: 0 }}>
           {cartItems.map((item: CartItem) => (
-            <li key={item.productId}>
-              - {item.productName} ({item.quantity}개) :{" "}
-              {(item.price * item.quantity).toLocaleString()}원
+            <li key={item.productId} style={{ display: "flex", justifyContent: "space-between" }}>
+              <span>- {item.productName} ({item.quantity}개)</span>
+              <span>{(item.price * item.quantity).toLocaleString()}원</span>
             </li>
           ))}
         </ul>
-        <p>💰 총 결제 금액: {totalAmount.toLocaleString()}원</p>
+        <div style={{ textAlign: "left" }}>
+          💰 총 결제 금액: {totalAmount.toLocaleString()}원
+        </div>
       </section>
 
-      {/* [주문자 정보 입력 박스] */}
-      <section style={{ marginTop: "20px" }}>
-        <h2>🙋‍♂️ [주문자 정보 입력]</h2>
-        <label>
-          이메일 주소 :{" "}
+      <section style={{ textAlign: "left" }}>
+        <h3>🙋‍♂️ [주문자 정보 입력]</h3>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <label>이메일 주소:</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="[ 주문 확인을 위해 이메일을 입력해 주세요 ✉️ ]"
-            style={{ width: "70%", padding: "5px" }}
+            placeholder="[ 이메일을 입력해 주세요 ✉️ ]"
+            style={{ flexGrow: 1 }}
           />
-        </label>
+        </div>
+        <div style={{ textAlign: "left" }}>
+          <p>* 회원가입 없이 이메일 주소만으로 주문이 접수 및 관리됩니다.</p>
+          <p>* 동일한 이메일로 추가 주문 시, 하나의 배송으로 합쳐집니다.</p>
+        </div>
       </section>
 
-      {/* 제어 구역 */}
-      <section style={{ marginTop: "20px" }}>
-        <button
-          onClick={() => router.push("/")}
-          style={{
-            marginRight: "10px",
-            padding: "10px 20px",
-            cursor: "pointer",
-          }}
-        >
+      <section style={{ textAlign: "left" }}>
+        <h3>🚚 [배송 안내]</h3>
+        <div style={{ textAlign: "left" }}>
+          ⚠️ 당일 오후 2시 이후의 주문 건은 다음 날 배송이 시작됩니다.
+        </div>
+      </section>
+
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <button onClick={() => router.push("/")}>
           ❌ 취소하기
         </button>
-
-        <button
-          onClick={handleProcessOrder}
-          style={{ padding: "10px 20px", cursor: "pointer" }}
-        >
+        <button onClick={handleProcessOrder}>
           💳 결제 및 주문
         </button>
-      </section>
+      </div>
     </main>
   );
 }
