@@ -76,7 +76,6 @@ export default function RootLayout({
           <div className="flex gap-4">
             <a href="#" style={{ color: "rgba(245,234,214,0.5)", fontSize: "11px", letterSpacing: "0.08em" }}>페이스북</a>
             <a href="#" style={{ color: "rgba(245,234,214,0.5)", fontSize: "11px", letterSpacing: "0.08em" }}>인스타그램</a>
->>>>>>> develop
           </div>
         </div>
       </footer>
