@@ -4,17 +4,19 @@ import com.team02.cafe.domain.order.entity.Order;
 import com.team02.cafe.domain.order.entity.OrderStatus;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
 public class OrderResponseDto {
     private Long orderId;
     private String email;
-    private String username; // 추가된 엔티티 반영
+    private String username;
     private String address;
     private String phoneNumber;
     private OrderStatus orderStatus;
     private long totalPrice;
+    private LocalDate deliveryDate;
     private LocalDateTime createdAt;
 
     public OrderResponseDto(Order order) {
@@ -25,6 +27,7 @@ public class OrderResponseDto {
         this.phoneNumber = order.getPhoneNumber();
         this.orderStatus = order.getOrderStatus();
         this.totalPrice = order.getTotalPrice();
+        this.deliveryDate = order.getDeliveryDate();
         this.createdAt = order.getCreatedAt();
     }
 }

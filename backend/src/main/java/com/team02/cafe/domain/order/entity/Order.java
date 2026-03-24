@@ -34,7 +34,6 @@ public class Order extends BaseTimeEntity {
     @Column(nullable = false, unique = true, updatable = false)
     private String orderNumber;
 
-    @Column(unique = true)
     private String email;
     private String username;
     private String address;

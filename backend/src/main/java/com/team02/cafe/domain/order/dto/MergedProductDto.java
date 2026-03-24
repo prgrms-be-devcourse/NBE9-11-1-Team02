@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class MergedProductDto {
-    private String productName;
-    private long totalQuantity; // 합쳐진 총 수량
-    private long totalPrice;    // 합쳐진 총 금액
+    private String name;
+    private long quantity;
+    private long totalPrice;
 }
