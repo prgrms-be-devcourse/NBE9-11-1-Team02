@@ -66,7 +66,7 @@ export default function OrderPage() {
 
       // 서버 응답 타입을 OrderResponse로 명시
       const response = await createOrder(orderData) as { data: OrderResponse };
-      const confirmedOrderId = response.data.orderId;
+      const confirmedOrderId = response.data.orderNumber;
 
       setStatus({ text: `주문이 입력되었습니다. 번호: ${confirmedOrderId}`, type: "success" });
       
