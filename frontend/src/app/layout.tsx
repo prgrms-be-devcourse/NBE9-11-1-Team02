@@ -33,7 +33,7 @@ export default function RootLayout({
           <div className="container mx-auto flex justify-between items-center p-4">
             <Link href="/" className="text-2xl font-bold text-brown-800">Grids & Circles</Link>
             <nav className="space-x-4">
-              <Link href="/admin" className="hover:text-brown-600 font-semibold">관리자</Link>
+              <Link href="/admin/products" className="hover:text-brown-600 font-semibold">관리자</Link>
               <Link href="/orders" className="hover:text-brown-600 font-semibold">주문 조회</Link>
             </nav>
           </div>
