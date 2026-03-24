@@ -50,7 +50,12 @@ export default function AdminProductsPage() {
     // 수정 버튼 클릭 — 폼에 기존 데이터 채우기
     const handleEdit = (product: Product) => {
         setEditId(product.id);
-        setForm({ name: product.name, price: product.price, quantity: product.quantity, imageUrl: product.imageUrl });
+        setForm({
+            name: product.name,
+            price: product.price,
+            quantity: product.quantity,
+            imageUrl: product.imageUrl ?? "" // undefined면 빈 문자열로
+        });
     };
 
     // 삭제 버튼 클릭 — DELETE 요청 후 목록 새로고침
@@ -80,7 +85,7 @@ export default function AdminProductsPage() {
                 <input placeholder="이미지 URL 입력" value={form.imageUrl} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} />
 
                 <button onClick={handleSubmit}>{editId !== null ? "수정 완료" : "추가"}</button>
-                {editId !== null && <button onClick={() => setEditId(null)}>취소</button>}
+                {editId !== null && <> / <button onClick={() => setEditId(null)}>수정 취소</button></>}
             </div>
 
             {/* 상품 목록 */}
