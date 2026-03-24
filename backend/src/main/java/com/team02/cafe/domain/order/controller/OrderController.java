@@ -44,6 +44,12 @@ public class OrderController {
     public RsData<OrderDetailResponseDto> getOrderDetails(@PathVariable Long orderId) {
         return RsData.of("200", "주문 상세 조회 성공", orderService.getOrderDetails(orderId));
     }
+
+    @GetMapping("/all")
+    public RsData<List<OrderResponseDto>> getAllOrders() {
+        return RsData.of("200", "전체 주문 조회 성공", orderService.getAllOrders());
+    }
+
     // 관리자용 배송 처리 합산 주문 조회 API
     @GetMapping("/merged")
     public RsData<List<MergedOrderDto>> getMergedOrders() {
