@@ -26,3 +26,17 @@ export async function updateOrderStatus(orderId: number, orderStatus: string) {
       orderStatus,
     });
   }
+
+export async function updateMergedOrderStatus(
+    email: string,
+    username: string,
+    address: string,
+    orderStatus: string
+  ) {
+    return apiClient.patch("/api/orders/merged/status", {
+      email,
+      username,
+      address,
+      orderStatus,
+    });
+  }

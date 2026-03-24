@@ -70,6 +70,7 @@ public class OrderService {
 
     private LocalDate getDeliveryDate() {
         LocalDateTime now = LocalDateTime.now();
+
         if (now.toLocalTime().isBefore(LocalTime.of(14, 0))) {
             return LocalDate.now();
         } else {
@@ -100,16 +101,51 @@ public class OrderService {
         order.changeStatus(OrderStatus.CANCELLED);
     }
 
-    @Transactional(readOnly = true)
-    public List<OrderResponseDto> getAllOrders() {
-        return orderRepository.findAll().stream()
-                .map(OrderResponseDto::new)
-                .collect(Collectors.toList());
+    @Transactional
+    public void updateOrderStatus(Long orderId, OrderStatus orderStatus) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("주문이 존재하지 않습니다."));
+
+        if (order.getOrderStatus() == OrderStatus.CANCELLED) {
+            throw new IllegalArgumentException("취소된 주문은 상태를 변경할 수 없습니다.");
+        }
+
+        order.changeStatus(orderStatus);
+    }
+
+    @Transactional
+    public void updateMergedOrderStatus(
+            String email,
+            String username,
+            String address,
+            OrderStatus orderStatus
+    ) {
+        LocalDateTime[] range = getCurrentDeliveryRange();
+        LocalDateTime start = range[0];
+        LocalDateTime end = range[1];
+
+        List<Order> orders = orderRepository
+                .findByCreatedAtBetweenAndOrderStatusNot(start, end, OrderStatus.CANCELLED)
+                .stream()
+                .filter(order ->
+                        order.getEmail().equals(email) &&
+                                order.getUsername().equals(username) &&
+                                order.getAddress().equals(address)
+                )
+                .toList();
+
+        if (orders.isEmpty()) {
+            throw new IllegalArgumentException("합배송 대상 주문을 찾을 수 없습니다.");
+        }
+
+        for (Order order : orders) {
+            order.changeStatus(orderStatus);
+        }
     }
 
     @Transactional(readOnly = true)
     public List<OrderResponseDto> getOrdersByEmail(String email) {
-        return orderRepository.findByEmailOrderByCreatedAtDesc(email).stream()
+        return orderRepository.findByEmail(email).stream()
                 .map(OrderResponseDto::new)
                 .collect(Collectors.toList());
     }
@@ -123,11 +159,77 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public List<MergedOrderDto> getMergedOrdersForDelivery() {
+        LocalDateTime[] range = getCurrentDeliveryRange();
+        LocalDateTime start = range[0];
+        LocalDateTime end = range[1];
+
+        List<Order> targetOrders =
+                orderRepository.findByCreatedAtBetweenAndOrderStatusNot(start, end, OrderStatus.CANCELLED);
+
+        // 이메일 + 이름 + 주소 기준으로 그룹화
+        Map<String, List<Order>> groupedOrders = targetOrders.stream()
+                .collect(Collectors.groupingBy(order ->
+                        order.getEmail() + "|" + order.getUsername() + "|" + order.getAddress()
+                ));
+
+        return groupedOrders.values().stream().map(orders -> {
+            Order firstOrder = orders.get(0);
+
+            Long orderId = orders.stream()
+                    .map(Order::getId)
+                    .min(Long::compareTo)
+                    .orElse(null);
+
+            String email = firstOrder.getEmail();
+            String username = firstOrder.getUsername();
+            String address = firstOrder.getAddress();
+            String phoneNumber = firstOrder.getPhoneNumber();
+            LocalDate deliveryDate = firstOrder.getDeliveryDate();
+            OrderStatus orderStatus = firstOrder.getOrderStatus();
+
+            long totalMergedPrice = orders.stream()
+                    .mapToLong(Order::getTotalPrice)
+                    .sum();
+
+            Map<String, MergedProductDto> productMap = new HashMap<>();
+
+            for (Order order : orders) {
+                for (OrderProduct op : order.getOrderProducts()) {
+                    String productName = op.getProduct().getName();
+                    long quantity = op.getOrderQuantity();
+                    long totalPrice = op.getOrderPrice();
+
+                    productMap.merge(
+                            productName,
+                            new MergedProductDto(productName, quantity, totalPrice),
+                            (existing, newOne) -> new MergedProductDto(
+                                    productName,
+                                    existing.getQuantity() + newOne.getQuantity(),
+                                    existing.getTotalPrice() + newOne.getTotalPrice()
+                            )
+                    );
+                }
+            }
+
+            return new MergedOrderDto(
+                    orderId,
+                    email,
+                    username,
+                    address,
+                    phoneNumber,
+                    totalMergedPrice,
+                    deliveryDate,
+                    orderStatus,
+                    new ArrayList<>(productMap.values())
+            );
+        }).collect(Collectors.toList());
+    }
+
+    private LocalDateTime[] getCurrentDeliveryRange() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime start;
         LocalDateTime end;
 
-        // 오후 2시 기준 기간 계산
         if (now.toLocalTime().isBefore(LocalTime.of(14, 0))) {
             start = LocalDateTime.of(now.toLocalDate().minusDays(1), LocalTime.of(14, 0));
             end = LocalDateTime.of(now.toLocalDate(), LocalTime.of(14, 0));
@@ -136,59 +238,6 @@ public class OrderService {
             end = LocalDateTime.of(now.toLocalDate().plusDays(1), LocalTime.of(14, 0));
         }
 
-        // 1. 해당 기간 내 취소되지 않은 '모든' 주문 조회
-        List<Order> targetOrders = orderRepository.findByCreatedAtBetweenAndOrderStatusNot(start, end, OrderStatus.CANCELLED);
-
-        // 2. 이메일을 기준으로 주문들을 그룹화 (이메일 -> 주문 리스트)
-        Map<String, List<Order>> groupedByEmail = targetOrders.stream()
-                .collect(Collectors.groupingBy(Order::getEmail));
-
-        // 3. 묶여진 그룹을 MergedOrderDto로 예쁘게 변환
-        return groupedByEmail.entrySet().stream().map(entry -> {
-            String email = entry.getKey();
-            List<Order> orders = entry.getValue();
-
-            // 주소, 전화번호 등은 동일 이메일의 첫 번째 주문 정보를 대표로 사용
-            Order firstOrder = orders.get(0);
-            String address = firstOrder.getAddress();
-            String phoneNumber = firstOrder.getPhoneNumber();
-
-            // 이메일별 총 결제 금액 다 더하기
-            long totalMergedPrice = orders.stream().mapToLong(Order::getTotalPrice).sum();
-
-            // 상품 이름 기준으로 수량과 금액 합치기
-            Map<String, MergedProductDto> productMap = new HashMap<>();
-            for (Order order : orders) {
-                for (OrderProduct op : order.getOrderProducts()) {
-                    String pName = op.getProduct().getName();
-                    long pQuantity = op.getOrderQuantity();
-                    long pPrice = op.getOrderPrice();
-
-                    // Map.merge: 이미 해당 상품이 있으면 기존 객체와 새 객체의 수량/금액을 더해서 합치기
-                    productMap.merge(pName,
-                            new MergedProductDto(pName, pQuantity, pPrice),
-                            (existing, newOne) -> new MergedProductDto(
-                                    pName,
-                                    existing.getTotalQuantity() + newOne.getTotalQuantity(),
-                                    existing.getTotalPrice() + newOne.getTotalPrice()
-                            ));
-                }
-            }
-
-            return new MergedOrderDto(email, address, phoneNumber, totalMergedPrice, new ArrayList<>(productMap.values()));
-        }).collect(Collectors.toList());
-
-    }
-
-    @Transactional
-    public void updateOrderStatus(Long orderId, OrderStatus orderStatus) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("주문이 존재하지 않습니다."));
-
-        if (order.getOrderStatus() == OrderStatus.CANCELLED) {
-            throw new IllegalArgumentException("취소된 주문은 상태를 변경할 수 없습니다.");
-        }
-
-        order.changeStatus(orderStatus);
+        return new LocalDateTime[]{start, end};
     }
 }

@@ -20,6 +20,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             OrderStatus orderStatus
     );
 
+    List<Order> findByEmail(String email);
+
     // 관리자 합치기용: 특정 기간 내의 '모든' 정상 주문 목록 조회
     List<Order> findByCreatedAtBetweenAndOrderStatusNot(
             LocalDateTime start,
@@ -29,5 +31,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
 
     List<Order> findByEmailOrderByCreatedAtDesc(String email);
+
+
 
 }
