@@ -188,6 +188,7 @@ public class OrderService {
                     .min(Long::compareTo)
                     .orElse(null);
 
+            String orderNumber = firstOrder.getOrderNumber();// DB에서 주문 번호(UUID) 꺼내오기
             String email = firstOrder.getEmail();
             String username = firstOrder.getUsername();
             String address = firstOrder.getAddress();
@@ -221,6 +222,7 @@ public class OrderService {
 
             return new MergedOrderDto(
                     orderId,
+                    orderNumber, //DTO를 만들 때 꺼내온 주문번호를 같이 포장해주기
                     email,
                     username,
                     address,

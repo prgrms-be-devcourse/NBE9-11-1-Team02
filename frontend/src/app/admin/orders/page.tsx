@@ -9,6 +9,7 @@ import {
 
 type OrderItem = {
   orderId: number;
+  orderNumber?: string;
   email: string;
   username: string;
   address: string;
@@ -27,6 +28,7 @@ type MergedProduct = {
 
 type MergedOrderItem = {
   orderId: number;
+  orderNumber?: string;
   email: string;
   username: string;
   address: string;
@@ -158,7 +160,7 @@ export default function AdminOrdersPage() {
                 borderRadius: "12px",
               }}
             >
-              <p><b>ID:</b> {order.orderId}</p>
+              <p className="font-mono text-sm"><b>주문번호:</b> {order.orderNumber || order.orderId}</p>
               <p><b>이메일:</b> {order.email}</p>
               <p><b>이름:</b> {order.username}</p>
               <p><b>주소:</b> {order.address}</p>
