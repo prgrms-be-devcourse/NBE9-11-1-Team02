@@ -14,11 +14,11 @@ export default function List() {
   const { cartItems, addToCart, removeFromCart } = useCartStore();
 
   useEffect(() => {
-    getProducts().then(res => {
-      setProducts(res.data)
-      console.log(res);
-    }
-    )
+    getProducts().then((res) => {
+      console.log("상품 배열:", res.data); // 배열 확인
+      console.table(res.data);            // 표로 확인
+      setProducts(res.data);
+    });
   }, []);
 
   const increase = (id: number) => {
@@ -96,14 +96,13 @@ function ProductList({
         <div 
           key={p.id} 
           className="flex items-center justify-between bg-cream-50 p-4 rounded-lg shadow-sm">
-          <Image
+          <img
             src={p.image_url ? `/${p.image_url}` : "/default.png"}
             alt={p.name}
             width={100}
             height={100}
-            className="rounded"
-            loading="eager"
-          />
+      className="rounded"
+/>
           <div className="flex-1 px-4 flex flex-col justify-between">
             <div className="font-semibold">{p.name}</div>
             <div className="text-gray-600">{p.price}원</div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Product } from "@/types/product";
+import Link from "next/link";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -15,8 +16,6 @@ export default function AdminProductsPage() {
   const fetchProducts = async () => {
     const res = await fetch("http://localhost:8080/api/products");
     const json = await res.json();
-    console.log("admin products:", json.data);
-    console.table(json.data);
     setProducts(json.data ?? []);
   };
 
@@ -25,35 +24,27 @@ export default function AdminProductsPage() {
   }, []);
 
   const handleSubmit = async () => {
-    const body = JSON.stringify(form);
-
-    if (editId !== null) {
-      await fetch(`http://localhost:8080/api/products/${editId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Admin-Email": "admin@cafe.com",
-        },
-        body,
-      });
-    } else {
-      await fetch("http://localhost:8080/api/products", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Admin-Email": "admin@cafe.com",
-        },
-        body,
-      });
+    if (editId === null) {
+      alert("수정할 상품을 먼저 선택해주세요.");
+      return;
     }
 
+    await fetch(`http://localhost:8080/api/products/${editId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Admin-Email": "admin@cafe.com",
+      },
+      body: JSON.stringify(form),
+    });
+
     await fetchProducts();
+    setEditId(null);
     setForm({
       name: "",
       price: 0,
       quantity: 0,
     });
-    setEditId(null);
   };
 
   const handleEdit = (product: Product) => {
@@ -72,18 +63,44 @@ export default function AdminProductsPage() {
         "Admin-Email": "admin@cafe.com",
       },
     });
+
+    if (editId === id) {
+      setEditId(null);
+      setForm({
+        name: "",
+        price: 0,
+        quantity: 0,
+      });
+    }
+
     await fetchProducts();
   };
 
   return (
     <main className="min-h-screen bg-black text-white px-8 py-10">
-      <h1 className="text-4xl font-bold mb-8">관리자 상품 관리</h1>
+      <div className="flex items-start justify-between mb-8">
+        <h1 className="text-4xl font-bold">관리자 상품 관리</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-8">
+        <Link href="/admin/orders">
+          <button className="border border-white rounded-lg px-4 py-2 font-semibold hover:bg-white hover:text-black transition">
+            주문 관리
+          </button>
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-8">
         <section className="bg-white text-black rounded-2xl shadow-lg p-6 h-fit">
-          <h2 className="text-2xl font-bold mb-6">
-            {editId !== null ? "상품 수정" : "상품 추가"}
-          </h2>
+          <h2 className="text-2xl font-bold mb-6">상품 수정</h2>
+
+          {editId === null ? (
+            <p className="text-gray-500 mb-4">
+              오른쪽 상품 카드에서 수정할 상품을 선택해주세요.
+            </p>
+          ) : (
+            <p className="text-sm text-gray-500 mb-4">
+              현재 선택된 상품 ID: {editId}
+            </p>
+          )}
 
           <div className="flex flex-col gap-4">
             <div>
@@ -95,6 +112,7 @@ export default function AdminProductsPage() {
                 onChange={(e) =>
                   setForm({ ...form, name: e.target.value })
                 }
+                disabled={editId === null}
               />
             </div>
 
@@ -108,6 +126,7 @@ export default function AdminProductsPage() {
                 onChange={(e) =>
                   setForm({ ...form, price: Number(e.target.value) })
                 }
+                disabled={editId === null}
               />
             </div>
 
@@ -121,38 +140,42 @@ export default function AdminProductsPage() {
                 onChange={(e) =>
                   setForm({ ...form, quantity: Number(e.target.value) })
                 }
+                disabled={editId === null}
               />
             </div>
 
             <div className="flex gap-3 mt-4">
               <button
                 onClick={handleSubmit}
-                className="bg-black text-white rounded-lg px-4 py-2 font-semibold hover:bg-gray-800"
+                disabled={editId === null}
+                className={`rounded-lg px-4 py-2 font-semibold transition ${
+                  editId === null
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-black text-white hover:bg-gray-800"
+                }`}
               >
-                {editId !== null ? "수정 완료" : "상품 추가"}
+                수정 완료
               </button>
 
-              {editId !== null && (
-                <button
-                  onClick={() => {
-                    setEditId(null);
-                    setForm({
-                      name: "",
-                      price: 0,
-                      quantity: 0,
-                    });
-                  }}
-                  className="border border-gray-400 rounded-lg px-4 py-2 font-semibold hover:bg-gray-100"
-                >
-                  취소
-                </button>
-              )}
+              <button
+                onClick={() => {
+                  setEditId(null);
+                  setForm({
+                    name: "",
+                    price: 0,
+                    quantity: 0,
+                  });
+                }}
+                className="border border-gray-400 rounded-lg px-4 py-2 font-semibold hover:bg-gray-100"
+              >
+                선택 해제
+              </button>
             </div>
           </div>
         </section>
 
         <section>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {products.map((product) => (
               <div
                 key={product.id}
