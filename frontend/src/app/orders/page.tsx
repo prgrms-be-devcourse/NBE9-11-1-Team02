@@ -140,36 +140,4 @@ export default function OrdersPage() {
             <h3>주문 상품</h3>
             <ul>
               {products?.map((product: any, idx: number) => {
-                const pName = product.productName || product.name || "상품명 확인 불가";
-                const pQty = product.orderQuantity || product.quantity || product.count || 0;
-                const pPrice = product.price || product.orderPrice || product.totalPrice || 0;
-
-                return (
-                  <li key={idx} style={{ marginBottom: "5px" }}>
-                    <strong style={{ fontSize: "16px" }}>{pName}</strong> - 수량: {pQty}개 / {pPrice.toLocaleString()}원
-                  </li>
-                );
-              })}
-              
-              {(!products || products.length === 0) && (
-                <li style={{ color: "gray" }}>주문 시 상품 정보가 연동되지 않았습니다.</li>
-              )}
-            </ul>
-
-            <hr style={{ margin: "10px 0" }} />
-
-            {/* 취소 버튼 영역 */}
-            {order.orderStatus !== "CANCELLED" && (
-              <button 
-                onClick={() => handleCancelOrder(currentOrderId)} 
-                style={{ backgroundColor: "#ff4d4f", color: "white", padding: "8px 16px", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "bold" }}
-              >
-                이 주문 취소하기
-              </button>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
+                const pName = product.productName ||
