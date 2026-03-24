@@ -46,18 +46,18 @@ export default function RootLayout({
           <nav className="flex gap-6">
             <Link href="/admin/products" style={{
               fontFamily: "var(--font-dm-mono), monospace",
-              fontSize: "11px",
+              fontSize: "13px",
               letterSpacing: "0.1em",
               textTransform: "uppercase",
               color: "rgba(245,234,214,0.6)",
             }}>관리자</Link>
             <Link href="/orders" style={{
               fontFamily: "var(--font-dm-mono), monospace",
-              fontSize: "11px",
+              fontSize: "13px",
               letterSpacing: "0.1em",
               textTransform: "uppercase",
               color: "rgba(245,234,214,0.6)",
-            }}>주문 조회</Link>
+            }}>주문조회</Link>
           </nav>
         </div>
       </header>
