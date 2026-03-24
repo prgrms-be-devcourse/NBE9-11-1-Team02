@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 @Getter
 public class OrderResponseDto {
     private Long orderId;
+    private String orderNumber;
     private String email;
     private String username;
     private String address;
@@ -26,6 +27,7 @@ public class OrderResponseDto {
 
     public OrderResponseDto(Order order) {
         this.orderId = order.getId();
+        this.orderNumber = order.getOrderNumber();
         this.email = order.getEmail();
         this.username = order.getUsername();
         this.address = order.getAddress();
