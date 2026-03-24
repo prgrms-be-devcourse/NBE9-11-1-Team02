@@ -11,6 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class MergedOrderDto {
     private Long orderId;
+    private String orderNumber;
     private String email;
     private String username;
     private String address;
