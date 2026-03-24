@@ -2,7 +2,6 @@
 
 import { getProducts } from "@/lib/api/product";
 import { CartItem, useCartStore } from "@/stores/cartStore";
-import { CartItem, useCartStore } from "@/stores/cartStore";
 import { Product } from "@/types/product";
 import Image from "next/image";
 import Link from "next/link";
@@ -37,15 +36,6 @@ export default function List() {
   };
 
   const handleAddToCart = (p: Product) => {
-    const quantityToAdd = quantities[p.id] || 1;
-    
-    const existingItem = cartItems.find(item => item.productId === p.id);
-    const existingQuantity = existingItem ? existingItem.quantity : 0;
-
-    if (existingQuantity + quantityToAdd > 10) {
-      alert("장바구니에는 한 상품 최대 10개까지만 담을 수 있습니다. 10개까지만 담겼습니다.");
-    }
-
     const quantityToAdd = quantities[p.id] || 1;
     
     const existingItem = cartItems.find(item => item.productId === p.id);
