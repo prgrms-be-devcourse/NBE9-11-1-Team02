@@ -1,11 +1,6 @@
 package com.team02.cafe.domain.order.controller;
 
-import com.team02.cafe.domain.order.dto.MergedOrderDto;
-import com.team02.cafe.domain.order.dto.OrderDetailResponseDto;
-import com.team02.cafe.domain.order.dto.OrderRequest;
-import com.team02.cafe.domain.order.dto.OrderResponse;
-import com.team02.cafe.domain.order.dto.OrderResponseDto;
-import com.team02.cafe.domain.order.dto.OrderStatusUpdateRequest;
+import com.team02.cafe.domain.order.dto.*;
 import com.team02.cafe.domain.order.service.OrderService;
 import com.team02.cafe.global.common.RsData;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +44,12 @@ public class OrderController {
     public RsData<OrderDetailResponseDto> getOrderDetails(@PathVariable Long orderId) {
         return RsData.of("200", "주문 상세 조회 성공", orderService.getOrderDetails(orderId));
     }
+
+    @GetMapping("/all")
+    public RsData<List<OrderResponseDto>> getAllOrders() {
+        return RsData.of("200", "전체 주문 조회 성공", orderService.getAllOrders());
+    }
+
     // 관리자용 배송 처리 합산 주문 조회 API
     @GetMapping("/merged")
     public RsData<List<MergedOrderDto>> getMergedOrders() {
@@ -62,5 +63,18 @@ public class OrderController {
     ) {
         orderService.updateOrderStatus(orderId, request.orderStatus());
         return RsData.of("200", "주문 상태가 변경되었습니다.");
+    }
+
+    @PatchMapping("/merged/status")
+    public RsData<Void> updateMergedOrderStatus(
+            @RequestBody MergedOrderStatusUpdateRequest request
+    ) {
+        orderService.updateMergedOrderStatus(
+                request.email(),
+                request.username(),
+                request.address(),
+                request.orderStatus()
+        );
+        return RsData.of("200", "합배송 주문 상태가 변경되었습니다.");
     }
 }
