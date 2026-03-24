@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCartStore, CartItem } from "../../stores/cartStore";
+
 import { createOrder } from "../../lib/api/order"; 
 import { OrderRequest } from "@/types/order"; // 정의된 타입을 참조
 
@@ -42,6 +43,7 @@ export default function OrderPage() {
     }
 
     setIsSubmitting(true);
+
     try {
       const orderData: OrderRequest = {
         email,
