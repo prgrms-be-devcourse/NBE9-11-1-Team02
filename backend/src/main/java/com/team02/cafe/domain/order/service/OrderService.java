@@ -46,9 +46,16 @@ public class OrderService {
                 getDeliveryDate()
         );
 
-        for (OrderProductRequest opReq : request.orderProductRequestList()) {
-            Product product = productRepository.findById(opReq.productId())
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
+        List<Long> productIds = new ArrayList<>();
+        for(OrderProductRequest opReq : request.orderProductRequestList()) {
+            productIds.add(opReq.productId());
+        }
+        List<Product> products = productRepository.findAllById(productIds);
+        Map<Long, Product> productMap = products.stream()
+                .collect(Collectors.toMap(Product::getId, p -> p));
+
+        for(OrderProductRequest opReq : request.orderProductRequestList()) {
+            Product product = productMap.get(opReq.productId());
 
             long quantity = opReq.orderQuantity();
 
