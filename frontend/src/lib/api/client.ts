@@ -40,14 +40,16 @@ export const apiClient = {
       body: body ? JSON.stringify(body) : undefined,
     }),
 
-  patch: <T>(path: string, body?: unknown) =>
-    request<T>(path, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: body ? JSON.stringify(body) : undefined,
-    }),
+    patch: <T>(path: string, body?: unknown, options?: RequestInit) =>
+        request<T>(path, {
+          method: "PATCH",
+          ...options,
+          headers: {
+            "Content-Type": "application/json",
+            ...(options?.headers || {}),
+          },
+          body: body ? JSON.stringify(body) : undefined,
+        }),
 
   put: <T>(path: string, body?: unknown) =>
     request<T>(path, {
