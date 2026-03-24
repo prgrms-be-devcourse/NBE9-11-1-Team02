@@ -44,8 +44,7 @@ public class ProductController {
                 productService.createProduct(
                         request.getName(),
                         request.getPrice(),
-                        request.getQuantity(),
-                        request.getImageUrl()
+                        request.getQuantity()
                 )
         );
         return RsData.of("200", "상품 등록 완료", response);
