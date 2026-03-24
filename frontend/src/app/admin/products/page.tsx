@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Product } from "@/types/product";
 
+const ADMIN_EMAIL = "admin@cafe.com";
+
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [form, setForm] = useState({
@@ -13,6 +15,7 @@ export default function AdminProductsPage() {
   });
   const [editId, setEditId] = useState<number | null>(null);
   const [mode, setMode] = useState<"create" | "edit">("create");
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   const fetchProducts = async () => {
     const res = await fetch("http://localhost:8080/api/products");
@@ -21,16 +24,46 @@ export default function AdminProductsPage() {
   };
 
   useEffect(() => {
+    const adminEmail = localStorage.getItem("adminEmail");
+
+    if (adminEmail !== ADMIN_EMAIL) {
+      alert("관리자만 접근 가능합니다.");
+      window.location.href = "/admin/login";
+      return;
+    }
+
+    setIsAuthorized(true);
     fetchProducts();
   }, []);
 
   const resetForm = () => {
-    setForm({ name: "", price: "", quantity: "" });
+    setForm({
+      name: "",
+      price: "",
+      quantity: "",
+    });
     setEditId(null);
     setMode("create");
   };
 
   const handleSubmit = async () => {
+    if (!form.name.trim()) {
+      alert("상품명을 입력해주세요.");
+      return;
+    }
+
+    if (!form.price.trim() || Number(form.price) < 0) {
+      alert("가격을 올바르게 입력해주세요.");
+      return;
+    }
+
+    if (!form.quantity.trim() || Number(form.quantity) < 0) {
+      alert("재고를 올바르게 입력해주세요.");
+      return;
+    }
+
+    const adminEmail = localStorage.getItem("adminEmail") ?? "";
+
     const body = JSON.stringify({
       name: form.name,
       price: Number(form.price),
@@ -42,7 +75,7 @@ export default function AdminProductsPage() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "Admin-Email": "admin@cafe.com",
+          "Admin-Email": adminEmail,
         },
         body,
       });
@@ -51,13 +84,13 @@ export default function AdminProductsPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Admin-Email": "admin@cafe.com",
+          "Admin-Email": adminEmail,
         },
         body,
       });
     }
 
-    fetchProducts();
+    await fetchProducts();
     resetForm();
   };
 
@@ -72,20 +105,31 @@ export default function AdminProductsPage() {
   };
 
   const handleDelete = async (id: number) => {
+    const adminEmail = localStorage.getItem("adminEmail") ?? "";
+
     await fetch(`http://localhost:8080/api/products/${id}`, {
       method: "DELETE",
       headers: {
-        "Admin-Email": "admin@cafe.com",
+        "Admin-Email": adminEmail,
       },
     });
 
-    fetchProducts();
+    if (editId === id) {
+      resetForm();
+    }
+
+    await fetchProducts();
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem("adminEmail");
+    window.location.href = "/admin/login";
+  };
+
+  if (!isAuthorized) return null;
 
   return (
     <div className="p-8">
-      
-      {/* 헤더 */}
       <div className="flex justify-between mb-6">
         <h1
           style={{
@@ -125,12 +169,24 @@ export default function AdminProductsPage() {
               주문 관리
             </button>
           </Link>
+
+          <button
+            onClick={handleLogout}
+            style={{
+              padding: "8px 16px",
+              border: "1px solid var(--border2)",
+              background: "transparent",
+              fontFamily: "var(--font-dm-mono)",
+              cursor: "pointer",
+              color: "#b91c1c",
+            }}
+          >
+            로그아웃
+          </button>
         </div>
       </div>
 
       <div className="grid grid-cols-[300px_1fr] gap-6">
-
-        {/* 폼 */}
         <div
           className="p-4 rounded-lg"
           style={{ background: "var(--parchment)", border: "1px solid var(--border)" }}
@@ -146,7 +202,6 @@ export default function AdminProductsPage() {
           </h2>
 
           <div className="flex flex-col gap-3">
-
             <input
               placeholder="상품명"
               value={form.name}
@@ -188,7 +243,6 @@ export default function AdminProductsPage() {
           </div>
         </div>
 
-        {/* 상품 리스트 */}
         <div className="grid gap-4">
           {products.map((p) => (
             <div
@@ -198,65 +252,80 @@ export default function AdminProductsPage() {
             >
               <img
                 src={p.image_url ? `/${p.image_url}` : "/default.png"}
+                alt={p.name}
                 width={100}
+                height={100}
+                className="rounded"
               />
 
               <div className="flex-1 px-4">
-                <div style={{ fontFamily: "var(--font-playfair)", fontWeight: 700 }}>
+                <div
+                  style={{
+                    fontFamily: "var(--font-playfair)",
+                    fontWeight: 700,
+                    color: "var(--ink)",
+                  }}
+                >
                   {p.name}
                 </div>
-                <div style={{ fontFamily: "var(--font-dm-mono)", fontSize: "12px" }}>
+                <div
+                  style={{
+                    fontFamily: "var(--font-dm-mono)",
+                    fontSize: "12px",
+                    color: "var(--amber)",
+                  }}
+                >
                   {p.price}원 / {p.quantity}개
                 </div>
               </div>
 
               <div className="flex gap-2 mt-3">
-  <button
-    onClick={() => handleEdit(p)}
-    style={{
-      padding: "8px 16px",
-      background: "var(--ink)",
-      color: "var(--cream)",
-      border: "1px solid var(--ink)",
-      fontFamily: "var(--font-dm-mono)",
-      fontSize: "12px",
-      letterSpacing: "0.08em",
-      cursor: "pointer",
-      transition: "all 0.2s ease",
-    }}
-    onMouseOver={(e) => {
-      e.currentTarget.style.opacity = "0.85";
-    }}
-    onMouseOut={(e) => {
-      e.currentTarget.style.opacity = "1";
-    }}
-  >
-    수정
-  </button>
+                <button
+                  onClick={() => handleEdit(p)}
+                  style={{
+                    padding: "8px 16px",
+                    background: "var(--ink)",
+                    color: "var(--cream)",
+                    border: "1px solid var(--ink)",
+                    fontFamily: "var(--font-dm-mono)",
+                    fontSize: "12px",
+                    letterSpacing: "0.08em",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.opacity = "0.85";
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.opacity = "1";
+                  }}
+                >
+                  수정
+                </button>
 
-  <button
-    onClick={() => handleDelete(p.id)}
-    style={{
-      padding: "8px 16px",
-      background: "transparent",
-      color: "#b91c1c",
-      border: "1px solid #b91c1c",
-      fontFamily: "var(--font-dm-mono)",
-      fontSize: "12px",
-      letterSpacing: "0.08em",
-      cursor: "pointer",
-      transition: "all 0.2s ease",
-    }}
-    onMouseOver={(e) => {
-      e.currentTarget.style.background = "#fef2f2";
-    }}
-    onMouseOut={(e) => {
-      e.currentTarget.style.background = "transparent";
-    }}
-  >
-    삭제
-  </button>
-</div>
+                <button
+                  onClick={() => handleDelete(p.id)}
+                  style={{
+                    padding: "8px 16px",
+                    background: "transparent",
+                    color: "#b91c1c",
+                    border: "1px solid #b91c1c",
+                    fontFamily: "var(--font-dm-mono)",
+                    fontSize: "12px",
+                    letterSpacing: "0.08em",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.background = "#fef2f2";
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.background = "transparent";
+                  }}
+                >
+                  삭제
+                </button>
+              </div>
             </div>
           ))}
         </div>

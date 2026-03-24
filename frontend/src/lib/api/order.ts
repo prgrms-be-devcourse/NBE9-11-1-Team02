@@ -1,4 +1,4 @@
-import { apiClient } from "./client";
+import { apiClient } from "@/lib/api/client";
 import type { OrderRequest, OrderResponse } from "@/types/order";
 
 export async function createOrder(payload: OrderRequest) {
@@ -35,12 +35,17 @@ export async function updateMergedOrderStatus(
     email: string,
     username: string,
     address: string,
-    orderStatus: string
+    orderStatus: string,
+    adminEmail: string
   ) {
     return apiClient.patch("/api/orders/merged/status", {
-      email,
-      username,
-      address,
-      orderStatus,
-    });
+        email,
+        username,
+        address,
+        orderStatus,
+      }, {
+        headers: {
+          "Admin-Email": adminEmail,
+        },
+      });
   }
