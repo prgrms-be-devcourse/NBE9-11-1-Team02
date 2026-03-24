@@ -15,6 +15,15 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private static final String ADMIN_EMAIL = "admin@cafe.com"; //관리자 이메일 (하드코딩)
+
+    private void validateAdmin(String email) {
+        if (!ADMIN_EMAIL.equals(email)) {
+            throw new IllegalArgumentException("관리자만 접근 가능합니다.");
+        }
+    }
+
+
 
     // 전체 조회
     @GetMapping
@@ -27,7 +36,10 @@ public class ProductController {
 
     // 등록
     @PostMapping
-    public RsData<ProductResponse> createProduct(@RequestBody ProductRequest request) {
+    public RsData<ProductResponse> createProduct(
+            @RequestHeader("Admin-Email") String email,
+            @RequestBody ProductRequest request) {
+        validateAdmin(email);
         ProductResponse response = new ProductResponse(
                 productService.createProduct(
                         request.getName(),
@@ -41,8 +53,11 @@ public class ProductController {
 
     // 수정
     @PutMapping("/{id}")
-    public RsData<ProductResponse> updateProduct(@PathVariable Long id,
-                                                 @RequestBody ProductRequest request) {
+    public RsData<ProductResponse> updateProduct(
+            @RequestHeader("Admin-Email") String email,
+            @PathVariable Long id,
+            @RequestBody ProductRequest request) {
+        validateAdmin(email);
         ProductResponse response = new ProductResponse(
                 productService.updateProduct(
                         id,
@@ -57,7 +72,10 @@ public class ProductController {
 
     // 삭제
     @DeleteMapping("/{id}")
-    public RsData<Void> deleteProduct(@PathVariable Long id) {
+    public RsData<Void> deleteProduct(
+            @RequestHeader("Admin-Email") String email,
+            @PathVariable Long id) {
+        validateAdmin(email);
         productService.deleteProduct(id);
         return RsData.of("200", "상품 삭제 완료");
     }
