@@ -53,12 +53,28 @@ export default function OrderPage() {
       };
 
       await createOrder(orderData);
-      setStatus({ text: "주문이 완료되었습니다!", type: "success" });
+      setStatus({ text: "주문이 완료되었습니다", type: "success" });
+	  alert("주문이 완료되었습니다"); // 성공 메시지
+	  
       clearCart();
       setTimeout(() => router.push("/"), 2000);
-    } catch (e) {
-      console.error("주문 생성 에러:", e);
-      setStatus({ text: "주문 처리 중 오류가 발생했습니다.", type: "error" });
+    } catch (e: any) {
+		// 서버의 원본 에러 메시지 추출
+		//  e.response.data.message에 서버 메시지가 전송됨
+		// 서버가 응답을 보냈으나 4xx, 5xx 에러인 경우
+	  const serverErrorMessage = e.response?.data?.message;
+	  
+	  // 요청은 보냈으나 응답을 전혀 받지 못한 경우 (네트워크 문제 등)
+	  const networkErrorMessage = e.request ? "서버와 통신할 수 없습니다. 네트워크 상태를 확인하세요." : null;
+	  
+	  // 그 외 설정 오류 또는 알 수 없는 문제
+	  const finalMsg = serverErrorMessage || networkErrorMessage || e.message || "치명적인 시스템 오류가 발생했습니다.";
+	  
+	  const fullErrorMsg = `오류 상세: ${finalMsg}`;
+	  
+	  console.error("통신 장애 발생 보고:", e);
+	  setStatus({ text: fullErrorMsg, type: "error" });
+	  alert(fullErrorMsg);
     } finally {
       setIsSubmitting(false);
     }
