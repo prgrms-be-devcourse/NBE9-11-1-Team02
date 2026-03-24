@@ -70,7 +70,7 @@ export default function OrderPage() {
       // 언디파인드 방지
       // API 라이브러리가 res.data를 반환하는지, res 전체를 반환하는지에 따라 대응
 	  
-	  // 주문 번호가 없을 경우 "알 수 없음"으로 대체하여 중단 없이 진행하네.
+	  // 주문 번호가 없을 경우 "알 수 없음"으로 대체하여 중단 없이 진행.
       const rawOrderId = (response as any).orderId || (response as any).data?.orderId;
       const confirmedOrderId = rawOrderId !== undefined && rawOrderId !== null ? rawOrderId : "알 수 없음";
 
