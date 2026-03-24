@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export type CartItem = {
   productId: number;
@@ -16,7 +17,9 @@ type CartState = {
   decreaseQuantity: (productId: number) => void;
 };
 
-export const useCartStore = create<CartState>((set) => ({
+export const useCartStore = create<CartState>() (
+  persist(
+  (set) => ({
   cartItems: [],
 
   addToCart: (item) =>
@@ -68,4 +71,8 @@ export const useCartStore = create<CartState>((set) => ({
         )
         .filter((cartItem) => cartItem.quantity > 0),
     })),
-}));
+}),
+  {
+    name: "cart-storage"
+  }
+));
