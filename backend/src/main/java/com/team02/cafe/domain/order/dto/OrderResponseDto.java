@@ -2,10 +2,13 @@ package com.team02.cafe.domain.order.dto;
 
 import com.team02.cafe.domain.order.entity.Order;
 import com.team02.cafe.domain.order.entity.OrderStatus;
+import com.team02.cafe.domain.orderproduct.dto.OrderProductResponse;
 import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public class OrderResponseDto {
@@ -19,6 +22,8 @@ public class OrderResponseDto {
     private LocalDate deliveryDate;
     private LocalDateTime createdAt;
 
+    private List<OrderProductResponse> orderProducts;
+
     public OrderResponseDto(Order order) {
         this.orderId = order.getId();
         this.email = order.getEmail();
@@ -29,5 +34,9 @@ public class OrderResponseDto {
         this.totalPrice = order.getTotalPrice();
         this.deliveryDate = order.getDeliveryDate();
         this.createdAt = order.getCreatedAt();
+
+        this.orderProducts = order.getOrderProducts().stream()
+                .map(OrderProductResponse::new)
+                .collect(Collectors.toList());
     }
 }
