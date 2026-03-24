@@ -17,8 +17,7 @@ export default function List() {
     getProducts().then(res => {
       setProducts(res.data)
       console.log(res);
-    }
-    )
+    })
   }, []);
 
   const increase = (id: number) => {
@@ -27,7 +26,7 @@ export default function List() {
       [id]: (prev[id] || 1) + 1
     }));
   };
-  
+
   const decrease = (id: number) => {
     setQuantities(prev => ({
       ...prev,
@@ -37,7 +36,7 @@ export default function List() {
 
   const handleAddToCart = (p: Product) => {
     const quantityToAdd = quantities[p.id] || 1;
-    
+
     const existingItem = cartItems.find(item => item.productId === p.id);
     const existingQuantity = existingItem ? existingItem.quantity : 0;
 
@@ -51,7 +50,7 @@ export default function List() {
       price: p.price,
       quantity: Math.min(existingQuantity + quantityToAdd, 10) - existingQuantity,
     });
-  
+
     setQuantities(prev => ({
       ...prev,
       [p.id]: 1
@@ -59,28 +58,28 @@ export default function List() {
   };
 
   return (
-    <>
-    <div className="flex gap-6">
-      <ProductList
-        products={products}
-        quantities={quantities}
-        increase={increase}
-        decrease={decrease}
-        handleAddToCart={handleAddToCart}
-      />
-      <Cart cartItems={cartItems} removeFromCart={removeFromCart} />
-    </div>
-    </>
+      <>
+        <div className="flex gap-6">
+          <ProductList
+              products={products}
+              quantities={quantities}
+              increase={increase}
+              decrease={decrease}
+              handleAddToCart={handleAddToCart}
+          />
+          <Cart cartItems={cartItems} removeFromCart={removeFromCart} />
+        </div>
+      </>
   );
 }
 
 function ProductList({
-  products,
-  quantities,
-  increase,
-  decrease,
-  handleAddToCart,
-}: {
+                       products,
+                       quantities,
+                       increase,
+                       decrease,
+                       handleAddToCart,
+                     }: {
   products: Product[];
   quantities: Record<number, number>;
   increase: (id: number) => void;
@@ -90,125 +89,202 @@ function ProductList({
   if (products.length === 0) return <div>로딩 중...</div>;
 
   return (
-    <>
-    <div className="flex-1 grid gap-4">
-      {products.map((p) => (
-        <div 
-          key={p.id} 
-          className="flex items-center justify-between bg-cream-50 p-4 rounded-lg shadow-sm">
-          <Image
-            src={p.image_url ? `/${p.image_url}` : "/default.png"}
-            alt={p.name}
-            width={100}
-            height={100}
-            className="rounded"
-            loading="eager"
-          />
-          <div className="flex-1 px-4 flex flex-col justify-between">
-            <div className="font-semibold">{p.name}</div>
-            <div className="text-gray-600">{p.price}원</div>
-            <div className="text-red-500 font-semibold">
-              {p.quantity < 1
-                ? "품절🥲"
-                : p.quantity <= 50
-                ? "품절 임박!"
-                : null}
-            </div>
-          </div>
-
-          {p.quantity > 0 && (
-          <>
-            <div className="flex flex-col items-center gap-1">
-              <div className="flex flex-col items-center">
-                <div className="flex items-center gap-2">
-                  <button
-                    className={`w-8 h-8 border rounded hover:bg-gray-100 disabled:bg-gray-200
-                      ${(quantities[p.id] || 1) <= 1 ? "bg-gray-200 hover:bg-gray-200" : ""}`}
-                    onClick={() => decrease(p.id)}
-                    disabled={(quantities[p.id] || 1) <= 1}
-                  >
-                    -
-                  </button>
-                  <span className="w-6 text-center">{quantities[p.id] || 1}</span>
-                  <button
-                    className={`w-8 h-8 border rounded hover:bg-gray-100 disabled:bg-gray-200 
-                      ${(quantities[p.id] || 1) >= 10 ? "bg-gray-200 hover:bg-gray-200" : ""}`}
-                    onClick={() => increase(p.id)}
-                    disabled={(quantities[p.id] || 1) >= 10}
-                  >
-                    +
-                  </button>
-                </div>
-
-                <div className="h-4 w-50 text-red-500 text-xs mt-1 text-center">
-                  {(quantities[p.id] || 1) >= 10 && "최대 10개까지만 담을 수 있습니다."}
-                </div>
-              </div>
-
-              <button
-                className={`mt-1 border rounded px-4 h-8 hover:bg-gray-100 disabled:bg-gray-200 
-                  ${p.quantity < 1 ? "bg-gray-200 hover:bg-gray-200" : ""}`}
-                onClick={() => handleAddToCart(p)}
-                disabled={p.quantity < 1}
+      <>
+        <div className="flex-1 grid gap-4">
+          {products.map((p) => (
+              /* 상품 카드 */
+              <div
+                  key={p.id}
+                  className="flex items-center justify-between p-4 rounded-lg"
+                  style={{ background: "var(--parchment)", border: "1px solid var(--border)" }}
               >
-                추가
-              </button>
-            </div>
-          </>
-        )}
+                <Image
+                    src={p.image_url ? `/${p.image_url}` : "/default.png"}
+                    alt={p.name}
+                    width={100}
+                    height={100}
+                    className="rounded"
+                    loading="eager"
+                />
+                <div className="flex-1 px-4 flex flex-col gap-1">
+                  {/* 상품명 */}
+                  <div style={{
+                    fontFamily: "var(--font-playfair), serif",
+                    fontSize: "18px",
+                    fontWeight: "700",
+                    color: "var(--ink)",
+                  }}>
+                    {p.name}
+                  </div>
+                  {/* 가격 */}
+                  <div style={{
+                    fontFamily: "var(--font-dm-mono), monospace",
+                    fontSize: "13px",
+                    color: "var(--amber)",
+                  }}>
+                    {p.price}원
+                  </div>
+                  {/* 품절 여부 */}
+                  <div className="text-red-500 font-semibold" style={{ fontSize: "12px" }}>
+                    {p.quantity < 1
+                        ? "품절🥲"
+                        : p.quantity <= 50
+                            ? "품절 임박!"
+                            : null}
+                  </div>
+                </div>
+
+                {p.quantity > 0 && (
+                    <>
+                      <div className="flex flex-col items-center gap-1">
+                        <div className="flex flex-col items-center">
+                          {/* 수량 조절 버튼 */}
+                          <div className="flex items-center gap-2">
+                            <button
+                                style={{
+                                  width: "32px", height: "32px",
+                                  border: "1px solid var(--border2)",
+                                  background: (quantities[p.id] || 1) <= 1 ? "var(--sand)" : "transparent",
+                                  cursor: (quantities[p.id] || 1) <= 1 ? "not-allowed" : "pointer",
+                                  color: "var(--ink)",
+                                }}
+                                onClick={() => decrease(p.id)}
+                                disabled={(quantities[p.id] || 1) <= 1}
+                            >
+                              -
+                            </button>
+                            <span style={{
+                              width: "24px", textAlign: "center",
+                              fontFamily: "var(--font-dm-mono), monospace",
+                            }}>
+                        {quantities[p.id] || 1}
+                      </span>
+                            <button
+                                style={{
+                                  width: "32px", height: "32px",
+                                  border: "1px solid var(--border2)",
+                                  background: (quantities[p.id] || 1) >= 10 ? "var(--sand)" : "transparent",
+                                  cursor: (quantities[p.id] || 1) >= 10 ? "not-allowed" : "pointer",
+                                  color: "var(--ink)",
+                                }}
+                                onClick={() => increase(p.id)}
+                                disabled={(quantities[p.id] || 1) >= 10}
+                            >
+                              +
+                            </button>
+                          </div>
+
+                          <div className="h-4 mt-1 text-center" style={{ fontSize: "10px", color: "var(--amber)" }}>
+                            {(quantities[p.id] || 1) >= 10 && "최대 10개까지만 담을 수 있습니다."}
+                          </div>
+                        </div>
+
+                        {/* 추가 버튼 */}
+                        <button
+                            style={{
+                              marginTop: "4px",
+                              padding: "6px 20px",
+                              height: "34px",
+                              background: p.quantity < 1 ? "var(--sand)" : "var(--ink)",
+                              color: p.quantity < 1 ? "var(--muted)" : "var(--cream)",
+                              border: "none",
+                              fontFamily: "var(--font-dm-mono), monospace",
+                              fontSize: "11px",
+                              letterSpacing: "0.08em",
+                              cursor: p.quantity < 1 ? "not-allowed" : "pointer",
+                            }}
+                            onClick={() => handleAddToCart(p)}
+                            disabled={p.quantity < 1}
+                        >
+                          추가
+                        </button>
+                      </div>
+                    </>
+                )}
+              </div>
+          ))}
         </div>
-      ))}
-      </div>
-    </>
+      </>
   );
 }
 
 function Cart({
-  cartItems,
-  removeFromCart,
-}: {
+                cartItems,
+                removeFromCart,
+              }: {
   cartItems: CartItem[];
   removeFromCart: (id: number) => void;
 }) {
   return (
-    <div className="w-80 bg-cream-100 p-4 rounded-lg shadow-md sticky top-4 h-fit">
-      <h2 className="text-lg font-bold mb-4">장바구니</h2>
-      {cartItems.length === 0 ? (
-        <div className="text-gray-500">비어있음</div>
-      ) : (
-        <ul className="flex flex-col gap-2">
-          {cartItems.map((item) => (
-            <li 
-              key={item.productId} 
-              className="flex justify-between items-center bg-white p-2 rounded shadow-sm">
-              <span className="flex-1">{item.productName}</span>
-              <span className="w-12 text-center">{item.quantity}개</span>
-              <span className="w-20 text-right">{item.price * item.quantity}원</span>
-              <button
-                className="border rounded px-2 py-1 text-red-500 hover:bg-red-50 ml-2"
-                onClick={() => removeFromCart(item.productId)}
-              >
-                삭제
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-      <div className="flex flex-col mt-4">
-        <Link href="/order">
-          <button
-            disabled={cartItems.length === 0}
-            title="상품을 먼저 담아주세요"
-            className={`border rounded px-4 py-2 transition ${
-              cartItems.length === 0
-                ? "bg-gray-200 text-gray-400 opacity-70"
-                : "hover:bg-gray-100"
-            }`}
-          >
-            주문하기
-          </button>
-        </Link>
+      /* 장바구니 사이드바 */
+      <div
+          className="w-80 p-4 rounded-lg sticky top-4 h-fit"
+          style={{ background: "var(--parchment)", border: "1px solid var(--border)" }}
+      >
+        {/* 장바구니 제목 */}
+        <h2 style={{
+          fontFamily: "var(--font-playfair), serif",
+          fontSize: "18px",
+          fontWeight: "700",
+          marginBottom: "1rem",
+          color: "var(--ink)",
+        }}>
+          장바구니
+        </h2>
+
+        {cartItems.length === 0 ? (
+            <div style={{ color: "var(--muted)", fontSize: "12px" }}>비어있음</div>
+        ) : (
+            <ul className="flex flex-col gap-2">
+              {cartItems.map((item) => (
+                  <li
+                      key={item.productId}
+                      className="flex justify-between items-center p-2 rounded"
+                      style={{ background: "var(--cream)", border: "1px solid var(--border)" }}
+                  >
+                    <span className="flex-1" style={{ fontSize: "13px" }}>{item.productName}</span>
+                    <span className="w-12 text-center" style={{ fontSize: "12px", color: "var(--muted)" }}>{item.quantity}개</span>
+                    <span className="w-20 text-right" style={{ fontSize: "13px" }}>{item.price * item.quantity}원</span>
+                    {/* 삭제 버튼 */}
+                    <button
+                        className="ml-2 px-2 py-1"
+                        style={{
+                          border: "1px solid var(--border2)",
+                          color: "#b91c1c",
+                          fontSize: "11px",
+                          background: "transparent",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => removeFromCart(item.productId)}
+                    >
+                      삭제
+                    </button>
+                  </li>
+              ))}
+            </ul>
+        )}
+
+        <div className="mt-4">
+          <Link href="/order">
+            {/* 주문하기 버튼 */}
+            <button
+                disabled={cartItems.length === 0}
+                style={{
+                  width: "100%",
+                  padding: "12px",
+                  background: cartItems.length === 0 ? "var(--sand)" : "var(--ink)",
+                  color: cartItems.length === 0 ? "var(--muted)" : "var(--cream)",
+                  border: "none",
+                  fontFamily: "var(--font-dm-mono), monospace",
+                  fontSize: "11px",
+                  letterSpacing: "0.1em",
+                  cursor: cartItems.length === 0 ? "not-allowed" : "pointer",
+                }}
+            >
+              주문하기
+            </button>
+          </Link>
+        </div>
       </div>
-    </div>
   );
 }
