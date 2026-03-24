@@ -46,9 +46,10 @@ public class ProductService {
         productRepository.delete(product);
     }
 
-    // 재고 차감
+    // 재고 차감(동시성 제어)
     public void decreaseQuantity(Long productId, Long quantity) {
-        Product product = getProduct(productId);
+        Product product = productRepository.findByIdWithLock(productId)
+                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. id: " + productId));
         product.decreaseQuantity(quantity);
     }
 
