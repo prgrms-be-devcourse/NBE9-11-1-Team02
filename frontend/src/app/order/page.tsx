@@ -1,53 +1,57 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCartStore, CartItem } from "../../stores/cartStore";
 
 export default function OrderPage() {
   const router = useRouter();
-  
-  const { cartItems, clearCart } = useCartStore((state) => ({
-    cartItems: state.cartItems,
-    clearCart: state.clearCart,
-  }));
+  const [isMounted, setIsMounted] = useState(false);
 
-  const [email, setEmail] = useState<string>("");
+  const cartItems = useCartStore((state) => state.cartItems);
+  const clearCart = useCartStore((state) => state.clearCart);
+
+  const [email, setEmail] = useState("");
   const [status, setStatus] = useState<{ text: string; type: "error" | "success" } | null>(null);
 
-  const totalAmount: number = cartItems.reduce(
-    (acc: number, item: CartItem) => acc + item.price * item.quantity, 0
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const totalAmount = cartItems.reduce(
+    (acc, item) => acc + item.price * item.quantity, 0
   );
 
-  const handleProcessOrder = (): void => {
+  const handleProcessOrder = () => {
     setStatus(null);
-
     if (cartItems.length === 0) {
       setStatus({ text: "장바구니가 비어 있습니다.", type: "error" });
       return;
     }
-
     if (!email.trim() || !email.includes("@")) {
       setStatus({ text: "이메일 주소를 정확히 입력해 주세요.", type: "error" });
       return;
     }
-
-    setStatus({ text: "주문이 성공적으로 완료되었습니다!", type: "success" });
+    setStatus({ text: "주문이 완료되었습니다!", type: "success" });
     clearCart(); 
     setTimeout(() => {
       router.push("/");
     }, 2000);
   };
 
+  const statusMessage = status ? (
+    <div style={{ textAlign: "center" }}>
+      {status.text}
+    </div>
+  ) : null;
+
+  if (!isMounted) return null;
+
   return (
     <main style={{ maxWidth: "650px", margin: "0 auto" }}>
       <h1 style={{ textAlign: "center" }}>☕ 주문서 작성</h1>
 
-      {status && (
-        <div style={{ textAlign: "center" }}>
-          {status.text}
-        </div>
-      )}
+      {statusMessage}
 
       <section style={{ textAlign: "left" }}>
         <h3>🛒 [주문 상품 정보]</h3>
