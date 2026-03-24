@@ -36,13 +36,20 @@ export default function List() {
   };
 
   const handleAddToCart = (p: Product) => {
-    const quantity = quantities[p.id] || 1;
-  
+    const quantityToAdd = quantities[p.id] || 1;
+    
+    const existingItem = cartItems.find(item => item.productId === p.id);
+    const existingQuantity = existingItem ? existingItem.quantity : 0;
+
+    if (existingQuantity + quantityToAdd > 10) {
+      alert("장바구니에는 한 상품 최대 10개까지만 담을 수 있습니다. 10개까지만 담겼습니다.");
+    }
+
     addToCart({
       productId: p.id,
       productName: p.name,
       price: p.price,
-      quantity: quantity,
+      quantity: Math.min(existingQuantity + quantityToAdd, 10) - existingQuantity,
     });
   
     setQuantities(prev => ({
@@ -68,16 +75,38 @@ export default function List() {
             <div>{p.name}</div>
             <div>{p.price}원</div>
 
-            <div className="flex items-center gap-2">
-              <button 
-                className="border rounded px-2 py-1 hover:bg-gray-100"
-                onClick={() => decrease(p.id)}>-</button>
-                <span>{quantities[p.id] || 1}</span>
-              <button 
-                className="border rounded px-2 py-1 hover:bg-gray-100"
-                onClick={() => increase(p.id)}>+</button>
+            <div className="text-red-500 font-semibold">
+              {p.quantity < 1  
+                ? "품절🥲"          
+                : p.quantity <= 50
+                    ? "품절 임박!"     
+                    : null}     
             </div>
 
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+              <button
+                className={`border rounded px-2 py-1 hover:bg-gray-100 
+                  ${ (quantities[p.id] || 1) <= 1 
+                        ? 'bg-gray-200 hover:bg-gray-200' : '' }`}
+                onClick={() => decrease(p.id)}
+                disabled={(quantities[p.id] || 1) <= 1}>-
+              </button>
+                <span>{quantities[p.id] || 1}</span>
+                <button
+                  className={`border rounded px-2 py-1 hover:bg-gray-100 
+                    ${ (quantities[p.id] || 1) >= 10 
+                          ? 'bg-gray-200 hover:bg-gray-200' : '' }`}
+                  onClick={() => increase(p.id)}
+                  disabled={(quantities[p.id] || 1) >= 10}>+
+                </button>
+              </div>
+              {(quantities[p.id] || 1) >= 10 && (
+                <div className="text-red-500 text-sm mt-1">
+                  최대 10개까지만 담을 수 있습니다.
+                </div>
+              )}
+            </div>
             <button 
               className="border rounded px-4 py-1 ml-3 hover:bg-gray-100"
               onClick={() => handleAddToCart(p)}>추가</button>
