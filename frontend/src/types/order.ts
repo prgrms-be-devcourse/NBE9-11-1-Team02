@@ -20,6 +20,7 @@ export type OrderProductRequest = {
   
   export type OrderResponse = {
     orderId: number;
+    orderNumber: string;
     email: string;
     username: string;
     address: string;
