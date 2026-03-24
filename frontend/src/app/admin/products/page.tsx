@@ -30,14 +30,20 @@ export default function AdminProductsPage() {
         if (editId !== null) {
             await fetch(`http://localhost:8080/api/products/${editId}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Admin-Email": "admin@cafe.com"
+                },
                 body: JSON.stringify(form),
             });
         } else {
             // 등록 모드 — POST 요청
             await fetch("http://localhost:8080/api/products", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Admin-Email": "admin@cafe.com"
+                },
                 body: JSON.stringify(form),
             });
         }
@@ -47,7 +53,7 @@ export default function AdminProductsPage() {
         setEditId(null);
     };
 
-    // 수정 버튼 클릭 — 폼에 기존 데이터 채우기
+    // 수정 버튼 클릭 —> 폼에 기존 데이터 채우기
     const handleEdit = (product: Product) => {
         setEditId(product.id);
         setForm({
@@ -58,9 +64,14 @@ export default function AdminProductsPage() {
         });
     };
 
-    // 삭제 버튼 클릭 — DELETE 요청 후 목록 새로고침
+    // 삭제 버튼 클릭 —> DELETE 요청 후 목록 새로고침
     const handleDelete = async (id: number) => {
-        await fetch(`http://localhost:8080/api/products/${id}`, { method: "DELETE" });
+        await fetch(`http://localhost:8080/api/products/${id}`, {
+            method: "DELETE",
+            headers: {
+                "Admin-Email": "admin@cafe.com"
+            }
+        });
         fetchProducts();
     };
 
