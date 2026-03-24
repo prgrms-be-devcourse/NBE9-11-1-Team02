@@ -2,6 +2,7 @@
 
 import { getProducts } from "@/lib/api/product";
 import { CartItem, useCartStore } from "@/stores/cartStore";
+import { CartItem, useCartStore } from "@/stores/cartStore";
 import { Product } from "@/types/product";
 import Image from "next/image";
 import Link from "next/link";
