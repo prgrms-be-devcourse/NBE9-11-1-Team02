@@ -1,24 +1,5 @@
 package com.team02.cafe.domain.delivery.controller;
 
-<<<<<<< HEAD
-import com.team02.cafe.domain.delivery.service.DeliveryService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-
-// 외부(JavaScript) 와 통신하는 API 연결
-
-
-@RestController
-@RequiredArgsConstructor
-public class DeliveryController {
-
-    private final DeliveryService service;
-
-    // 주소 정보를 받아 배송을 시작하는 API 연결.
-    @PostMapping("/api/delivery")
-    public Long create(@RequestBody String address) {
-        return service.join(address);
-=======
 import com.team02.cafe.domain.delivery.dto.DeliveryCreateRequest;
 import com.team02.cafe.domain.delivery.service.DeliveryService;
 import com.team02.cafe.global.common.RsData;
@@ -36,6 +17,5 @@ public class DeliveryController {
     public RsData<Long> create(@RequestBody DeliveryCreateRequest request) {
         Long deliveryId = deliveryService.join(request.orderId(), request.address());
         return RsData.of("200", "배송 생성 완료", deliveryId);
->>>>>>> 0fc2eda85929e041633c8de34d4295fd08757cbc
     }
 }

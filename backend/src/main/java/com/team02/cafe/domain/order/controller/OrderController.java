@@ -52,4 +52,17 @@ public class OrderController {
         orderService.updateOrderStatus(orderId, request.orderStatus());
         return RsData.of("200", "주문 상태가 변경되었습니다.");
     }
+
+    @PatchMapping("/merged/status")
+    public RsData<Void> updateMergedOrderStatus(
+            @RequestBody MergedOrderStatusUpdateRequest request
+    ) {
+        orderService.updateMergedOrderStatus(
+                request.email(),
+                request.username(),
+                request.address(),
+                request.orderStatus()
+        );
+        return RsData.of("200", "합배송 주문 상태가 변경되었습니다.");
+    }
 }
