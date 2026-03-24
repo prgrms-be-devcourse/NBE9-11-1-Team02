@@ -23,8 +23,9 @@ body {
   background: var(--cream);
   color: var(--ink);
   font-family: 'DM Mono', monospace;
+  scrollbar-gutter: stable;
 }
 
 html {
-  scrollbar-gutter: stable;
+  overflow-y: scroll;
 }
