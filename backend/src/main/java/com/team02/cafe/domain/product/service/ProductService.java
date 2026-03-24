@@ -36,7 +36,14 @@ public class ProductService {
     // 수정
     public Product updateProduct(Long id, String name, Long price, Long quantity, String imageUrl) {
         Product product = getProduct(id);
-        product.update(name, price, quantity, imageUrl);
+
+        product.update(
+                name,
+                price,
+                quantity,
+                imageUrl != null ? imageUrl : product.getImageUrl()
+        );
+
         return product;
     }
 

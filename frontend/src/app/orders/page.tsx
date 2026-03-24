@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { getOrders, cancelOrder } from "@/lib/api/order";
-import type { OrderResponse } from "@/types/order";
 
 export default function OrdersPage() {
   const [emailInput, setEmailInput] = useState("");
@@ -28,7 +27,6 @@ export default function OrdersPage() {
         fetchedOrders = res.data;
       }
       
-      // 이름 필터링
       fetchedOrders = fetchedOrders.filter(
         (order: any) => order.username === usernameInput
       );
@@ -57,7 +55,6 @@ export default function OrdersPage() {
     }
   };
 
-  // 14시 기준 '당일/익일 배송' 계산 텍스트 변환 함수
   const getDeliveryText = (order: any) => {
     if (order.createdAt) {
       const orderHour = new Date(order.createdAt).getHours();
@@ -67,109 +64,129 @@ export default function OrdersPage() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>📦 내 주문 내역 조회</h1>
-      <hr style={{ marginBottom: "20px" }} />
+    <div className="max-w-4xl mx-auto py-8 space-y-8">
+      <h1 
+        className="text-4xl font-bold text-center mb-8"
+        style={{ fontFamily: "var(--font-playfair), serif", color: "var(--ink)" }}
+      >
+        My Orders
+      </h1>
 
       {/* 검색 영역 */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        <div>
-          <label htmlFor="usernameInput" style={{ display: "inline-block", width: "120px" }}><strong>주문자 이름: </strong></label>
+      <div 
+        className="p-6 md:p-8 rounded-lg shadow-sm flex flex-col gap-4"
+        style={{ backgroundColor: "var(--parchment)", border: "1px solid var(--border)" }}
+      >
+        <div className="grid md:grid-cols-[120px_1fr] items-center gap-2">
+          <label htmlFor="usernameInput" className="font-bold text-sm">주문자 이름</label>
           <input
             type="text"
             id="usernameInput"
             value={usernameInput}
             onChange={(e) => setUsernameInput(e.target.value)}
-            placeholder="예: 홍길동"
-            style={{ padding: "5px", width: "200px" }}
+            placeholder="홍길동"
+            className="p-2 outline-none rounded-sm transition-colors"
+            style={{ backgroundColor: "var(--cream)", border: "1px solid var(--border2)" }}
           />
         </div>
 
-        <div>
-          <label htmlFor="emailInput" style={{ display: "inline-block", width: "120px" }}><strong>주문자 이메일: </strong></label>
+        <div className="grid md:grid-cols-[120px_1fr_auto] items-center gap-2">
+          <label htmlFor="emailInput" className="font-bold text-sm">주문자 이메일</label>
           <input
             type="email"
             id="emailInput"
             value={emailInput}
             onChange={(e) => setEmailInput(e.target.value)}
-            placeholder="예: test@cafe.com"
-            style={{ marginRight: "10px", padding: "5px", width: "200px" }}
+            placeholder="test@cafe.com"
+            className="p-2 outline-none rounded-sm transition-colors"
+            style={{ backgroundColor: "var(--cream)", border: "1px solid var(--border2)" }}
             onKeyDown={(e) => e.key === 'Enter' && handleFetchOrders()}
           />
-          <button onClick={handleFetchOrders} disabled={isLoading} style={{ padding: "5px 10px", cursor: "pointer", backgroundColor: "#333", color: "white", border: "none", borderRadius: "4px" }}>
+          <button 
+            onClick={handleFetchOrders} 
+            disabled={isLoading} 
+            className="px-6 py-2 rounded-sm font-bold transition-opacity hover:opacity-90 md:ml-2 mt-2 md:mt-0"
+            style={{ backgroundColor: "var(--ink)", color: "var(--cream)" }}
+          >
             {isLoading ? "조회 중..." : "조회하기"}
           </button>
         </div>
       </div>
 
-      <br />
-
       {/* 검색 결과가 없을 때 */}
       {hasSearched && (!orderList || orderList.length === 0) && (
-        <p style={{ color: "gray", fontWeight: "bold" }}>해당 이름과 이메일로 조회된 주문 내역이 없습니다.</p>
+        <p className="text-center py-10" style={{ color: "var(--muted)" }}>해당 이름과 이메일로 조회된 주문 내역이 없습니다.</p>
       )}
 
-      {/* 검색 결과가 있을 때 */}
-      {orderList?.map((order) => {
-        const currentOrderId = order.orderId || order.id;
+      {/* 검색 결과 */}
+      <div className="space-y-6">
+        {orderList?.map((order) => {
+          const currentOrderId = order.orderId || order.id;
+          const products = order.orderProducts || order.productResponseList || order.orderProductResponseList || order.products || order.orderProductDtoList || order.orderProductList || [];
 
-        // 백엔드 변수명이 무엇이든 다 잡아내는 만능 배열 추출기
-        const products = order.orderProducts || order.productResponseList || order.orderProductResponseList || order.products || order.orderProductDtoList || order.orderProductList || [];
-
-        return (
-          <div key={currentOrderId} style={{ border: "1px solid #ccc", padding: "15px", marginTop: "15px", borderRadius: "8px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <h2>주문번호: #{currentOrderId}</h2>
-              <span style={{ 
-                fontWeight: "bold",
-                color: order.orderStatus === 'CANCELLED' ? 'red' : 'blue',
-                padding: "4px 8px",
-                borderRadius: "4px",
-                backgroundColor: order.orderStatus === 'CANCELLED' ? '#ffeede' : '#eef2ff'
-              }}>
-                상태: {order.orderStatus}
-              </span>
-            </div>
-            
-            <p><strong>총 결제 금액:</strong> {order.totalPrice?.toLocaleString() || 0}원</p>
-            <p><strong>배송지:</strong> {order.address}</p>
-            <p style={{ color: "#0066cc" }}><strong>배송 예정일:</strong> {getDeliveryText(order)}</p>
-
-            <hr style={{ margin: "10px 0" }} />
-
-            <h3>주문 상품</h3>
-            <ul>
-              {products?.map((product: any, idx: number) => {
-                const pName = product.productName || product.name || "상품명 확인 불가";
-                const pQty = product.orderQuantity || product.quantity || product.count || 0;
-                const pPrice = product.price || product.orderPrice || product.totalPrice || 0;
-
-                return (
-                  <li key={idx} style={{ marginBottom: "5px" }}>
-                    <strong style={{ fontSize: "16px" }}>{pName}</strong> - 수량: {pQty}개 / {pPrice.toLocaleString()}원
-                  </li>
-                );
-              })}
+          return (
+            <div 
+              key={currentOrderId} 
+              className="p-6 rounded-lg shadow-sm space-y-4"
+              style={{ backgroundColor: "var(--cream)", border: "1px solid var(--border2)" }}
+            >
+              <div className="flex justify-between items-center border-b pb-3" style={{ borderColor: "var(--border)" }}>
+                <h2 className="text-2xl font-bold font-mono">Order #{currentOrderId}</h2>
+                <span 
+                  className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+                  style={{ 
+                    backgroundColor: order.orderStatus === 'CANCELLED' ? "var(--amber-pale)" : "var(--parchment)",
+                    color: order.orderStatus === 'CANCELLED' ? "red" : "var(--amber2)",
+                    border: "1px solid var(--border)"
+                  }}
+                >
+                  {order.orderStatus}
+                </span>
+              </div>
               
-              {(!products || products.length === 0) && (
-                <li style={{ color: "gray" }}>주문 시 상품 정보가 연동되지 않았습니다.</li>
+              <div className="grid md:grid-cols-2 gap-2 text-sm">
+                <p><strong style={{ color: "var(--muted)" }}>총 결제 금액:</strong> {order.totalPrice?.toLocaleString() || 0}원</p>
+                <p><strong style={{ color: "var(--muted)" }}>배송지:</strong> {order.address}</p>
+                <p style={{ color: "var(--amber2)" }}><strong>배송 예정일:</strong> {getDeliveryText(order)}</p>
+              </div>
+
+              <div className="pt-4 border-t" style={{ borderColor: "var(--border)" }}>
+                <h3 className="text-sm font-bold mb-3" style={{ color: "var(--muted)" }}>주문 상품</h3>
+                <ul className="space-y-2">
+                  {products?.map((product: any, idx: number) => {
+                    const pName = product.productName || product.name || "상품명 확인 불가";
+                    const pQty = product.orderQuantity || product.quantity || product.count || 0;
+                    const pPrice = product.price || product.orderPrice || product.totalPrice || 0;
+
+                    return (
+                      <li key={idx} className="flex justify-between items-center bg-white/40 p-2 rounded text-sm" style={{ border: "1px solid var(--border)" }}>
+                        <span><strong>{pName}</strong> <span style={{ color: "var(--muted)" }}>x {pQty}</span></span>
+                        <span className="font-mono">{pPrice.toLocaleString()}원</span>
+                      </li>
+                    );
+                  })}
+                  {(!products || products.length === 0) && (
+                    <li className="text-sm" style={{ color: "var(--muted)" }}>주문 시 상품 정보가 연동되지 않았습니다.</li>
+                  )}
+                </ul>
+              </div>
+
+              {/* 취소 버튼 */}
+              {order.orderStatus !== "CANCELLED" && (
+                <div className="flex justify-end pt-4">
+                  <button 
+                    onClick={() => handleCancelOrder(currentOrderId)} 
+                    className="px-4 py-2 rounded-sm text-sm font-bold transition-opacity hover:opacity-80"
+                    style={{ backgroundColor: "var(--amber)", color: "var(--cream)" }}
+                  >
+                    이 주문 취소하기
+                  </button>
+                </div>
               )}
-            </ul>
-
-            <hr style={{ margin: "10px 0" }} />
-
-            {/* 취소 버튼 영역 */}
-            {order.orderStatus !== "CANCELLED" && (
-              <button 
-                onClick={() => handleCancelOrder(currentOrderId)} 
-                style={{ backgroundColor: "#ff4d4f", color: "white", padding: "8px 16px", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "bold" }}
-              >
-                이 주문 취소하기
-              </button>
-            )}
-          </div>
-        );
-      })}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
