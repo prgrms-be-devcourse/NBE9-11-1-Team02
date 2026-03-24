@@ -4,8 +4,14 @@ import com.team02.cafe.domain.order.dto.*;
 import com.team02.cafe.domain.order.service.OrderService;
 import com.team02.cafe.global.common.RsData;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -51,5 +57,18 @@ public class OrderController {
     ) {
         orderService.updateOrderStatus(orderId, request.orderStatus());
         return RsData.of("200", "주문 상태가 변경되었습니다.");
+    }
+
+    @PatchMapping("/merged/status")
+    public RsData<Void> updateMergedOrderStatus(
+            @RequestBody MergedOrderStatusUpdateRequest request
+    ) {
+        orderService.updateMergedOrderStatus(
+                request.email(),
+                request.username(),
+                request.address(),
+                request.orderStatus()
+        );
+        return RsData.of("200", "합배송 주문 상태가 변경되었습니다.");
     }
 }
