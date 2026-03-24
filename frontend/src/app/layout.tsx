@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Link from "next/link";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,10 +25,36 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+      lang="ko"
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col bg-cream-50 text-gray-900">
+        {/* Header */}
+        <header className="bg-brown-50 shadow-md">
+          <div className="container mx-auto flex justify-between items-center p-4">
+            <Link href="/" className="text-2xl font-bold text-brown-800">Grids & Circles</Link>
+            <nav className="space-x-4">
+              <Link href="/admin" className="hover:text-brown-600 font-semibold">관리자</Link>
+              <Link href="/orders" className="hover:text-brown-600 font-semibold">주문 조회</Link>
+            </nav>
+          </div>
+        </header>
+  
+        {/* Main Content */}
+        <main className="flex-1 container mx-auto p-4">
+          {children}
+        </main>
+  
+        {/* Footer */}
+        <footer className="bg-brown-100 mt-8">
+          <div className="container mx-auto p-4 flex justify-between items-center text-brown-800">
+            <p>© 2026 Grids & Circles</p>
+            <div className="space-x-4">
+              <a href="#" className="hover:text-brown-600">페이스북</a>
+              <a href="#" className="hover:text-brown-600">인스타그램</a>
+            </div>
+          </div>
+        </footer>
+      </body>
     </html>
   );
 }
