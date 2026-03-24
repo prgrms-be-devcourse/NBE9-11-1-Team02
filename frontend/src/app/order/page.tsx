@@ -3,46 +3,62 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCartStore, CartItem } from "../../stores/cartStore";
+import { createOrder } from "../../api/order/order"; // API 연결
 
 export default function OrderPage() {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // 스토어 데이터 개별 선택
   const cartItems = useCartStore((state) => state.cartItems);
   const clearCart = useCartStore((state) => state.clearCart);
 
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<{ text: string; type: "error" | "success" } | null>(null);
 
+  // 하이드레이션 체크
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  const totalAmount = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity, 0
-  );
+  // 총액 계산
+  const totalAmount = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
-  const handleProcessOrder = () => {
+  // 주문 처리 로직
+  const handleProcessOrder = async () => {
     setStatus(null);
     if (cartItems.length === 0) {
       setStatus({ text: "장바구니가 비어 있습니다.", type: "error" });
       return;
     }
     if (!email.trim() || !email.includes("@")) {
-      setStatus({ text: "이메일 주소를 정확히 입력해 주세요.", type: "error" });
+      setStatus({ text: "이메일을 정확히 입력하세요.", type: "error" });
       return;
     }
-    setStatus({ text: "주문이 완료되었습니다!", type: "success" });
-    clearCart(); 
-    setTimeout(() => {
-      router.push("/");
-    }, 2000);
+
+    setIsSubmitting(true);
+    try {
+      // API 전송
+      await createOrder({
+        email,
+        items: cartItems,
+        totalAmount
+      } as any);
+
+      setStatus({ text: "주문이 완료되었습니다!", type: "success" });
+      clearCart();
+      setTimeout(() => router.push("/"), 2000);
+    } catch (e) {
+      setStatus({ text: "오류가 발생했습니다.", type: "error" });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
+  // 메시지 처리
   const statusMessage = status ? (
-    <div style={{ textAlign: "center" }}>
-      {status.text}
-    </div>
+    <div style={{ textAlign: "center" }}>{status.text}</div>
   ) : null;
 
   if (!isMounted) return null;
@@ -63,42 +79,37 @@ export default function OrderPage() {
             </li>
           ))}
         </ul>
-        <div style={{ textAlign: "left" }}>
-          💰 총 결제 금액: {totalAmount.toLocaleString()}원
-        </div>
+        <div style={{ textAlign: "left" }}>💰 총 결제 금액: {totalAmount.toLocaleString()}원</div>
       </section>
 
       <section style={{ textAlign: "left" }}>
         <h3>🙋‍♂️ [주문자 정보 입력]</h3>
         <div style={{ display: "flex", alignItems: "center" }}>
-          <label>이메일 주소:</label>
+          <label>이메일 주소: </label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="[ 이메일을 입력해 주세요 ✉️ ]"
+            placeholder="이메일을 입력하세요"
             style={{ flexGrow: 1 }}
+            disabled={isSubmitting}
           />
         </div>
         <div style={{ textAlign: "left" }}>
-          <p>* 회원가입 없이 이메일 주소만으로 주문이 접수 및 관리됩니다.</p>
-          <p>* 동일한 이메일로 추가 주문 시, 하나의 배송으로 합쳐집니다.</p>
+          <p>* 이메일 주소로 주문이 관리됩니다.</p>
+          <p>* 동일 이메일은 묶음 배송됩니다.</p>
         </div>
       </section>
 
       <section style={{ textAlign: "left" }}>
         <h3>🚚 [배송 안내]</h3>
-        <div style={{ textAlign: "left" }}>
-          ⚠️ 당일 오후 2시 이후의 주문 건은 다음 날 배송이 시작됩니다.
-        </div>
+        <div style={{ textAlign: "left" }}>⚠️ 당일 오후 2시 이후 주문은 내일 배송됩니다.</div>
       </section>
 
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <button onClick={() => router.push("/")}>
-          ❌ 취소하기
-        </button>
-        <button onClick={handleProcessOrder}>
-          💳 결제 및 주문
+        <button onClick={() => router.push("/")} disabled={isSubmitting}>❌ 취소</button>
+        <button onClick={handleProcessOrder} disabled={isSubmitting}>
+          {isSubmitting ? "처리 중..." : "💳 주문하기"}
         </button>
       </div>
     </main>
