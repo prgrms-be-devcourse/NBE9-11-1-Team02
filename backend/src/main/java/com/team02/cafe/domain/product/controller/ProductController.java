@@ -4,14 +4,25 @@ import com.team02.cafe.domain.product.dto.ProductRequest;
 import com.team02.cafe.domain.product.dto.ProductResponse;
 import com.team02.cafe.domain.product.service.ProductService;
 import com.team02.cafe.global.common.RsData;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/products")
+@Tag(name = "ProductController", description = "상품 API")
 public class ProductController {
 
     private final ProductService productService;
@@ -23,10 +34,9 @@ public class ProductController {
         }
     }
 
-
-
     // 전체 조회
     @GetMapping
+    @Operation(summary = "상품 목록 조회")
     public RsData<List<ProductResponse>> getProducts() {
         List<ProductResponse> response = productService.getProducts().stream()
                 .map(ProductResponse::new)
@@ -36,6 +46,7 @@ public class ProductController {
 
     // 등록
     @PostMapping
+    @Operation(summary = "상품 등록")
     public RsData<ProductResponse> createProduct(
             @RequestHeader("Admin-Email") String email,
             @RequestBody ProductRequest request) {
@@ -52,6 +63,7 @@ public class ProductController {
 
     // 수정
     @PutMapping("/{id}")
+    @Operation(summary = "상품 수정")
     public RsData<ProductResponse> updateProduct(
             @RequestHeader("Admin-Email") String email,
             @PathVariable Long id,
@@ -71,6 +83,7 @@ public class ProductController {
 
     // 삭제
     @DeleteMapping("/{id}")
+    @Operation(summary = "상품 삭제")
     public RsData<Void> deleteProduct(
             @RequestHeader("Admin-Email") String email,
             @PathVariable Long id) {
