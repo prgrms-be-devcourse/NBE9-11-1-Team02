@@ -24,9 +24,31 @@ public class Product extends BaseTimeEntity {
 
     private Long quantity;
 
-    public Product(String name, Long price, Long quantity) {
+    private String imageUrl;
+
+    public Product(String name, Long price, Long quantity, String imageUrl) {
         this.name = name;
         this.price = price;
         this.quantity = quantity;
+        this.imageUrl = imageUrl;
     }
+
+    public void update(String name, Long price, Long quantity, String imageUrl) {
+        this.name = name;
+        this.price = price;
+        this.quantity = quantity;
+        this.imageUrl = imageUrl;
+    }
+
+    public void decreaseQuantity(Long quantity) {
+        if (this.quantity < quantity) {
+            throw new IllegalArgumentException("재고가 부족합니다. 현재 재고: " + this.quantity);
+        }
+        this.quantity -= quantity;
+    }
+
+    public void increaseQuantity(Long quantity) {
+        this.quantity += quantity;
+    }
+
 }
