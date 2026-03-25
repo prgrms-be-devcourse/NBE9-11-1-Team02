@@ -3,17 +3,21 @@ package com.team02.cafe.domain.delivery.controller;
 import com.team02.cafe.domain.delivery.dto.DeliveryCreateRequest;
 import com.team02.cafe.domain.delivery.service.DeliveryService;
 import com.team02.cafe.global.common.RsData;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/delivery")
+@Tag(name = "DeliveryController", description = "배송 API")
 public class DeliveryController {
 
     private final DeliveryService deliveryService;
 
     @PostMapping
+    @Operation(summary = "배송 생성")
     public RsData<Long> create(@RequestBody DeliveryCreateRequest request) {
         Long deliveryId = deliveryService.join(request.orderId(), request.address());
         return RsData.of("200", "배송 생성 완료", deliveryId);
